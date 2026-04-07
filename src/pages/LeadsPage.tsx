@@ -34,7 +34,6 @@ interface Lead {
 const STATUS_OPTIONS = [
   { value: 'novo', label: 'Novo', color: 'bg-blue-500/10 text-blue-600 border-blue-200' },
   { value: 'contatado', label: 'Contatado', color: 'bg-yellow-500/10 text-yellow-600 border-yellow-200' },
-  { value: 'convertido', label: 'Convertido', color: 'bg-green-500/10 text-green-600 border-green-200' },
   { value: 'perdido', label: 'Perdido', color: 'bg-red-500/10 text-red-600 border-red-200' },
 ];
 
