@@ -14,7 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      leads_simulacao: {
+        Row: {
+          cidade: string | null
+          consumo_medio: number | null
+          cpf_cnpj: string
+          created_at: string
+          desconto_percentual: number
+          distribuidora: string
+          economia_anual: number
+          economia_mensal: number
+          email: string | null
+          estado: string | null
+          id: string
+          nome: string
+          status: string
+          telefone: string
+          tipo_cliente: string
+          valor_fatura: number
+          valor_final: number
+        }
+        Insert: {
+          cidade?: string | null
+          consumo_medio?: number | null
+          cpf_cnpj: string
+          created_at?: string
+          desconto_percentual: number
+          distribuidora: string
+          economia_anual: number
+          economia_mensal: number
+          email?: string | null
+          estado?: string | null
+          id?: string
+          nome: string
+          status?: string
+          telefone: string
+          tipo_cliente?: string
+          valor_fatura: number
+          valor_final: number
+        }
+        Update: {
+          cidade?: string | null
+          consumo_medio?: number | null
+          cpf_cnpj?: string
+          created_at?: string
+          desconto_percentual?: number
+          distribuidora?: string
+          economia_anual?: number
+          economia_mensal?: number
+          email?: string | null
+          estado?: string | null
+          id?: string
+          nome?: string
+          status?: string
+          telefone?: string
+          tipo_cliente?: string
+          valor_fatura?: number
+          valor_final?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
