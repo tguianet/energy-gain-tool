@@ -34,7 +34,6 @@ interface Lead {
 const STATUS_OPTIONS = [
   { value: 'novo', label: 'Novo', color: 'bg-blue-500/10 text-blue-600 border-blue-200' },
   { value: 'contatado', label: 'Contatado', color: 'bg-yellow-500/10 text-yellow-600 border-yellow-200' },
-  { value: 'convertido', label: 'Convertido', color: 'bg-green-500/10 text-green-600 border-green-200' },
   { value: 'perdido', label: 'Perdido', color: 'bg-red-500/10 text-red-600 border-red-200' },
 ];
 
@@ -75,7 +74,9 @@ export default function LeadsPage() {
     }
   };
 
-  const leadsFiltrados = leads.filter(l => {
+  const leadsAtivos = leads.filter(l => l.status !== 'convertido');
+
+  const leadsFiltrados = leadsAtivos.filter(l => {
     const matchBusca = l.nome.toLowerCase().includes(busca.toLowerCase()) ||
       l.telefone.includes(busca) ||
       l.cpf_cnpj.includes(busca);
@@ -125,10 +126,10 @@ export default function LeadsPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: 'Total', value: leads.length, icon: <Clock className="h-4 w-4" /> },
-          { label: 'Novos', value: leads.filter(l => l.status === 'novo').length, icon: <Clock className="h-4 w-4 text-blue-500" /> },
-          { label: 'Convertidos', value: leads.filter(l => l.status === 'convertido').length, icon: <CheckCircle2 className="h-4 w-4 text-green-500" /> },
-          { label: 'Perdidos', value: leads.filter(l => l.status === 'perdido').length, icon: <XCircle className="h-4 w-4 text-red-500" /> },
+          { label: 'Total', value: leadsAtivos.length, icon: <Clock className="h-4 w-4" /> },
+          { label: 'Novos', value: leadsAtivos.filter(l => l.status === 'novo').length, icon: <Clock className="h-4 w-4 text-blue-500" /> },
+          { label: 'Contatados', value: leadsAtivos.filter(l => l.status === 'contatado').length, icon: <CheckCircle2 className="h-4 w-4 text-yellow-500" /> },
+          { label: 'Perdidos', value: leadsAtivos.filter(l => l.status === 'perdido').length, icon: <XCircle className="h-4 w-4 text-red-500" /> },
         ].map(s => (
           <div key={s.label} className="rounded-xl border bg-card p-4">
             <div className="flex items-center gap-2 text-muted-foreground text-sm">{s.icon}{s.label}</div>
@@ -199,7 +200,7 @@ export default function LeadsPage() {
                   </td>
                   <td className="p-3">
                     <div className="flex items-center gap-1.5">
-                      {lead.status !== 'convertido' && lead.status !== 'perdido' && (
+                      {lead.status !== 'perdido' && (
                         <>
                           <Button
                             size="sm"
@@ -245,17 +246,6 @@ export default function LeadsPage() {
                             Recusou
                           </Button>
                         </>
-                      )}
-                      {lead.status === 'convertido' && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-7 px-2 text-xs text-primary"
-                          onClick={() => navigate('/clientes')}
-                        >
-                          <ArrowRight className="h-3.5 w-3.5 mr-1" />
-                          Ver cliente
-                        </Button>
                       )}
                       {lead.status === 'perdido' && (
                         <Button
