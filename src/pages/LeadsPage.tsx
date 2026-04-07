@@ -246,18 +246,7 @@ export default function LeadsPage() {
                             Recusou
                           </Button>
                         </>
-                      )}
-                      {lead.status === 'convertido' && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-7 px-2 text-xs text-primary"
-                          onClick={() => navigate('/clientes')}
-                        >
-                          <ArrowRight className="h-3.5 w-3.5 mr-1" />
-                          Ver cliente
-                        </Button>
-                      )}
+                      )
                       {lead.status === 'perdido' && (
                         <Button
                           size="sm"
