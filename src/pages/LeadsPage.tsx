@@ -149,6 +149,7 @@ export default function LeadsPage() {
               <th className="text-right p-3 font-medium text-muted-foreground">Economia/mês</th>
               <th className="text-left p-3 font-medium text-muted-foreground">Status</th>
               <th className="text-left p-3 font-medium text-muted-foreground">Data</th>
+              <th className="text-left p-3 font-medium text-muted-foreground">Ações</th>
             </tr>
           </thead>
           <tbody>
