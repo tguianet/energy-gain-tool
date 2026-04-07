@@ -17,7 +17,7 @@ const ESTADOS = [
   'PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO',
 ];
 
-const TAXA_DESCONTO_PADRAO = 15;
+const TAXA_DESCONTO_PADRAO = 18;
 const TAXAS_FIXAS_PADRAO = 50;
 
 export default function SimulacaoPublicaPage() {
