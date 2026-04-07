@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Users, Calculator, FileText, FileCheck,
-  BarChart3, Settings, ChevronLeft, ChevronRight, Zap, LogOut, Menu, X,
+  BarChart3, Settings, ChevronLeft, ChevronRight, Zap, LogOut, Menu, X, UserPlus,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
