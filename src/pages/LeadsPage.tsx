@@ -127,10 +127,10 @@ export default function LeadsPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: 'Total', value: leads.length, icon: <Clock className="h-4 w-4" /> },
-          { label: 'Novos', value: leads.filter(l => l.status === 'novo').length, icon: <Clock className="h-4 w-4 text-blue-500" /> },
-          { label: 'Convertidos', value: leads.filter(l => l.status === 'convertido').length, icon: <CheckCircle2 className="h-4 w-4 text-green-500" /> },
-          { label: 'Perdidos', value: leads.filter(l => l.status === 'perdido').length, icon: <XCircle className="h-4 w-4 text-red-500" /> },
+          { label: 'Total', value: leadsAtivos.length, icon: <Clock className="h-4 w-4" /> },
+          { label: 'Novos', value: leadsAtivos.filter(l => l.status === 'novo').length, icon: <Clock className="h-4 w-4 text-blue-500" /> },
+          { label: 'Contatados', value: leadsAtivos.filter(l => l.status === 'contatado').length, icon: <CheckCircle2 className="h-4 w-4 text-yellow-500" /> },
+          { label: 'Perdidos', value: leadsAtivos.filter(l => l.status === 'perdido').length, icon: <XCircle className="h-4 w-4 text-red-500" /> },
         ].map(s => (
           <div key={s.label} className="rounded-xl border bg-card p-4">
             <div className="flex items-center gap-2 text-muted-foreground text-sm">{s.icon}{s.label}</div>
