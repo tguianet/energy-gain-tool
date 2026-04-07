@@ -40,8 +40,13 @@ export default function SimulacaoPublicaPage() {
   const [valorFatura, setValorFatura] = useState(0);
   const [consumoMedio, setConsumoMedio] = useState(0);
 
+  const TAXA_COMISSAO = 3; // 3% sobre o desconto
+
   const resultado = useMemo(
-    () => calcularSimulacao(valorFatura, TAXAS_FIXAS_PADRAO, TAXA_DESCONTO_PADRAO),
+    () => {
+      const sim = calcularSimulacao(valorFatura, TAXAS_FIXAS_PADRAO, TAXA_DESCONTO_PADRAO);
+      return { ...sim, comissao: sim.descontoReais * (TAXA_COMISSAO / 100) };
+    },
     [valorFatura]
   );
 
