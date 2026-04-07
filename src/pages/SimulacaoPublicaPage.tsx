@@ -40,8 +40,13 @@ export default function SimulacaoPublicaPage() {
   const [valorFatura, setValorFatura] = useState(0);
   const [consumoMedio, setConsumoMedio] = useState(0);
 
+  const TAXA_COMISSAO = 3; // 3% sobre o desconto
+
   const resultado = useMemo(
-    () => calcularSimulacao(valorFatura, TAXAS_FIXAS_PADRAO, TAXA_DESCONTO_PADRAO),
+    () => {
+      const sim = calcularSimulacao(valorFatura, TAXAS_FIXAS_PADRAO, TAXA_DESCONTO_PADRAO);
+      return { ...sim, comissao: sim.descontoReais * (TAXA_COMISSAO / 100) };
+    },
     [valorFatura]
   );
 
@@ -235,6 +240,7 @@ export default function SimulacaoPublicaPage() {
                       { icon: <Zap className="h-4 w-4" />, label: 'Valor final', value: formatarMoeda(resultado.valorFinal) },
                       { icon: <TrendingUp className="h-4 w-4" />, label: 'Economia mensal', value: formatarMoeda(resultado.economiaMensal) },
                       { icon: <TrendingUp className="h-4 w-4" />, label: 'Economia anual', value: formatarMoeda(resultado.economiaAnual) },
+                      { icon: <DollarSign className="h-4 w-4" />, label: 'Comissão (3%)', value: formatarMoeda(resultado.comissao) },
                     ].map(card => (
                       <div key={card.label} className="rounded-lg border p-3">
                         <div className="flex items-center gap-1.5 text-muted-foreground mb-1">

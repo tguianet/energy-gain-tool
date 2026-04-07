@@ -148,6 +148,7 @@ export default function LeadsPage() {
               <th className="text-left p-3 font-medium text-muted-foreground">Distribuidora</th>
               <th className="text-right p-3 font-medium text-muted-foreground">Fatura</th>
               <th className="text-right p-3 font-medium text-muted-foreground">Economia/mês</th>
+              <th className="text-right p-3 font-medium text-muted-foreground">Comissão</th>
               <th className="text-left p-3 font-medium text-muted-foreground">Status</th>
               <th className="text-left p-3 font-medium text-muted-foreground">Data</th>
               <th className="text-left p-3 font-medium text-muted-foreground">Ações</th>
@@ -155,9 +156,9 @@ export default function LeadsPage() {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={8} className="p-8 text-center text-muted-foreground">Carregando...</td></tr>
+              <tr><td colSpan={9} className="p-8 text-center text-muted-foreground">Carregando...</td></tr>
             ) : leadsFiltrados.length === 0 ? (
-              <tr><td colSpan={8} className="p-8 text-center text-muted-foreground">Nenhum lead encontrado</td></tr>
+              <tr><td colSpan={9} className="p-8 text-center text-muted-foreground">Nenhum lead encontrado</td></tr>
             ) : (
               leadsFiltrados.map(lead => (
                 <tr key={lead.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
@@ -183,6 +184,7 @@ export default function LeadsPage() {
                   </td>
                   <td className="p-3 text-right font-medium text-foreground">{formatarMoeda(lead.valor_fatura)}</td>
                   <td className="p-3 text-right font-medium text-primary">{formatarMoeda(lead.economia_mensal)}</td>
+                  <td className="p-3 text-right font-medium text-accent-foreground">{formatarMoeda(lead.economia_mensal * 0.03)}</td>
                   <td className="p-3">
                     <Select value={lead.status} onValueChange={(v) => atualizarStatus(lead.id, v)}>
                       <SelectTrigger className="h-8 w-32 border-0 bg-transparent p-0">
