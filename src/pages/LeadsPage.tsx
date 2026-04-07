@@ -184,6 +184,7 @@ export default function LeadsPage() {
                   </td>
                   <td className="p-3 text-right font-medium text-foreground">{formatarMoeda(lead.valor_fatura)}</td>
                   <td className="p-3 text-right font-medium text-primary">{formatarMoeda(lead.economia_mensal)}</td>
+                  <td className="p-3 text-right font-medium text-accent-foreground">{formatarMoeda(lead.economia_mensal * 0.03)}</td>
                   <td className="p-3">
                     <Select value={lead.status} onValueChange={(v) => atualizarStatus(lead.id, v)}>
                       <SelectTrigger className="h-8 w-32 border-0 bg-transparent p-0">
