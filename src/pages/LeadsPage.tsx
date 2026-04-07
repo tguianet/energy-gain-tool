@@ -43,6 +43,8 @@ export default function LeadsPage() {
   const [loading, setLoading] = useState(true);
   const [busca, setBusca] = useState('');
   const [filtroStatus, setFiltroStatus] = useState('todos');
+  const { adicionarCliente } = useData();
+  const navigate = useNavigate();
 
   const fetchLeads = async () => {
     setLoading(true);
