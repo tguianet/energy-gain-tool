@@ -246,7 +246,7 @@ export default function LeadsPage() {
                             Recusou
                           </Button>
                         </>
-                      )
+                      )}
                       {lead.status === 'perdido' && (
                         <Button
                           size="sm"
