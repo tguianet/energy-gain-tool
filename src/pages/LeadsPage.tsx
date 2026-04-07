@@ -197,6 +197,82 @@ export default function LeadsPage() {
                   <td className="p-3 text-muted-foreground text-xs">
                     {new Date(lead.created_at).toLocaleDateString('pt-BR')}
                   </td>
+                  <td className="p-3">
+                    <div className="flex items-center gap-1.5">
+                      {lead.status !== 'convertido' && lead.status !== 'perdido' && (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 px-2 text-xs border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground"
+                            title="Converter em cliente"
+                            onClick={() => {
+                              adicionarCliente({
+                                nomeCompleto: lead.nome,
+                                telefone: lead.telefone,
+                                email: lead.email || '',
+                                cpfCnpj: lead.cpf_cnpj,
+                                tipoCliente: lead.tipo_cliente as TipoCliente,
+                                distribuidora: lead.distribuidora,
+                                cidade: lead.cidade || '',
+                                estado: lead.estado || '',
+                                endereco: '',
+                                unidadeConsumidora: '',
+                                consumoMedioMensal: 0,
+                                valorMedioConta: lead.valor_fatura,
+                                observacoes: `Lead convertido. Economia: ${formatarMoeda(lead.economia_mensal)}/mês`,
+                                status: 'ativo',
+                              });
+                              atualizarStatus(lead.id, 'convertido');
+                              toast.success(`${lead.nome} adicionado como cliente!`);
+                              navigate('/clientes');
+                            }}
+                          >
+                            <UserPlus className="h-3.5 w-3.5 mr-1" />
+                            Cliente
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 px-2 text-xs border-destructive/30 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                            title="Não aceitou — entrar em contato depois"
+                            onClick={() => {
+                              atualizarStatus(lead.id, 'perdido');
+                              toast('Marcado para novo contato futuro', { icon: '🔴' });
+                            }}
+                          >
+                            <PhoneOff className="h-3.5 w-3.5 mr-1" />
+                            Recusou
+                          </Button>
+                        </>
+                      )}
+                      {lead.status === 'convertido' && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 px-2 text-xs text-primary"
+                          onClick={() => navigate('/clientes')}
+                        >
+                          <ArrowRight className="h-3.5 w-3.5 mr-1" />
+                          Ver cliente
+                        </Button>
+                      )}
+                      {lead.status === 'perdido' && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 px-2 text-xs border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground"
+                          onClick={() => {
+                            atualizarStatus(lead.id, 'novo');
+                            toast.success('Lead reaberto para novo contato');
+                          }}
+                        >
+                          <RefreshCw className="h-3.5 w-3.5 mr-1" />
+                          Reabrir
+                        </Button>
+                      )}
+                    </div>
+                  </td>
                 </tr>
               ))
             )}
