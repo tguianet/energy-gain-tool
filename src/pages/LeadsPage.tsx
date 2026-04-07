@@ -200,7 +200,7 @@ export default function LeadsPage() {
                   </td>
                   <td className="p-3">
                     <div className="flex items-center gap-1.5">
-                      {lead.status !== 'convertido' && lead.status !== 'perdido' && (
+                      {lead.status !== 'perdido' && (
                         <>
                           <Button
                             size="sm"
