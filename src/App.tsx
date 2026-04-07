@@ -14,6 +14,7 @@ import PropostasPage from '@/pages/PropostasPage';
 import ContratosPage from '@/pages/ContratosPage';
 import RelatoriosPage from '@/pages/RelatoriosPage';
 import ConfiguracoesPage from '@/pages/ConfiguracoesPage';
+import SimulacaoPublicaPage from '@/pages/SimulacaoPublicaPage';
 import NotFound from './pages/NotFound';
 
 const queryClient = new QueryClient();
@@ -21,42 +22,43 @@ const queryClient = new QueryClient();
 const App = () => {
   const [loggedIn, setLoggedIn] = useState(false);
 
-  if (!loggedIn) {
-    return (
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <LoginPage onLogin={() => setLoggedIn(true)} />
-          </BrowserRouter>
-        </TooltipProvider>
-      </QueryClientProvider>
-    );
-  }
-
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <DataProvider>
-          <BrowserRouter>
-            <AppLayout onLogout={() => setLoggedIn(false)}>
-              <Routes>
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/clientes" element={<ClientesPage />} />
-                <Route path="/simulador" element={<SimuladorPage />} />
-                <Route path="/propostas" element={<PropostasPage />} />
-                <Route path="/contratos" element={<ContratosPage />} />
-                <Route path="/relatorios" element={<RelatoriosPage />} />
-                <Route path="/configuracoes" element={<ConfiguracoesPage />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </AppLayout>
-          </BrowserRouter>
-        </DataProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Página pública — acessível sem login */}
+            <Route path="/simular" element={<SimulacaoPublicaPage />} />
+
+            {/* Rotas internas */}
+            <Route
+              path="/*"
+              element={
+                !loggedIn ? (
+                  <LoginPage onLogin={() => setLoggedIn(true)} />
+                ) : (
+                  <DataProvider>
+                    <AppLayout onLogout={() => setLoggedIn(false)}>
+                      <Routes>
+                        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                        <Route path="/dashboard" element={<DashboardPage />} />
+                        <Route path="/clientes" element={<ClientesPage />} />
+                        <Route path="/simulador" element={<SimuladorPage />} />
+                        <Route path="/propostas" element={<PropostasPage />} />
+                        <Route path="/contratos" element={<ContratosPage />} />
+                        <Route path="/relatorios" element={<RelatoriosPage />} />
+                        <Route path="/configuracoes" element={<ConfiguracoesPage />} />
+                        <Route path="*" element={<NotFound />} />
+                      </Routes>
+                    </AppLayout>
+                  </DataProvider>
+                )
+              }
+            />
+          </Routes>
+        </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
   );
