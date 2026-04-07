@@ -154,9 +154,9 @@ export default function LeadsPage() {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={7} className="p-8 text-center text-muted-foreground">Carregando...</td></tr>
+              <tr><td colSpan={8} className="p-8 text-center text-muted-foreground">Carregando...</td></tr>
             ) : leadsFiltrados.length === 0 ? (
-              <tr><td colSpan={7} className="p-8 text-center text-muted-foreground">Nenhum lead encontrado</td></tr>
+              <tr><td colSpan={8} className="p-8 text-center text-muted-foreground">Nenhum lead encontrado</td></tr>
             ) : (
               leadsFiltrados.map(lead => (
                 <tr key={lead.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
