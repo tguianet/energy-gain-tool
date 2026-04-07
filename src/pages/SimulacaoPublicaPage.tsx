@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { calcularSimulacao, formatarMoeda, formatarPercentual } from '@/utils/energyCalculations';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 import type { TipoCliente } from '@/types/energy';
 
 const DISTRIBUIDORAS = [
@@ -54,13 +55,33 @@ export default function SimulacaoPublicaPage() {
     setEtapa('resultado');
   };
 
-  const handleAceitarProposta = () => {
+  const handleAceitarProposta = async () => {
     setEnviando(true);
-    setTimeout(() => {
-      setEnviando(false);
+    try {
+      const { error } = await supabase.from('leads_simulacao').insert({
+        nome,
+        telefone,
+        email: email || null,
+        cpf_cnpj: cpfCnpj,
+        tipo_cliente: tipoCliente,
+        distribuidora,
+        cidade: cidade || null,
+        estado: estado || null,
+        valor_fatura: valorFatura,
+        consumo_medio: consumoMedio || null,
+        desconto_percentual: TAXA_DESCONTO_PADRAO,
+        economia_mensal: resultado.economiaMensal,
+        economia_anual: resultado.economiaAnual,
+        valor_final: resultado.valorFinal,
+      });
+      if (error) throw error;
       setAceito(true);
       toast.success('Proposta aceita com sucesso! Entraremos em contato.');
-    }, 1500);
+    } catch {
+      toast.error('Erro ao enviar proposta. Tente novamente.');
+    } finally {
+      setEnviando(false);
+    }
   };
 
   const handleVoltar = () => {

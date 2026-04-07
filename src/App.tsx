@@ -15,6 +15,7 @@ import ContratosPage from '@/pages/ContratosPage';
 import RelatoriosPage from '@/pages/RelatoriosPage';
 import ConfiguracoesPage from '@/pages/ConfiguracoesPage';
 import SimulacaoPublicaPage from '@/pages/SimulacaoPublicaPage';
+import LeadsPage from '@/pages/LeadsPage';
 import NotFound from './pages/NotFound';
 
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ const App = () => {
                         <Route path="/simulador" element={<SimuladorPage />} />
                         <Route path="/propostas" element={<PropostasPage />} />
                         <Route path="/contratos" element={<ContratosPage />} />
+                        <Route path="/leads" element={<LeadsPage />} />
                         <Route path="/relatorios" element={<RelatoriosPage />} />
                         <Route path="/configuracoes" element={<ConfiguracoesPage />} />
                         <Route path="*" element={<NotFound />} />
