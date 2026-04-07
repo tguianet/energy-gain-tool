@@ -21,7 +21,7 @@ const emptyCliente = {
 };
 
 export default function ClientesPage() {
-  const { clientes, adicionarCliente, atualizarCliente, removerCliente } = useData();
+  const { clientes: clientesLocais, adicionarCliente, atualizarCliente, removerCliente } = useData();
   const navigate = useNavigate();
   const [busca, setBusca] = useState('');
   const [filtroStatus, setFiltroStatus] = useState<string>('todos');
@@ -30,8 +30,44 @@ export default function ClientesPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyCliente);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [clientesConvertidos, setClientesConvertidos] = useState<Cliente[]>([]);
 
-  const cidades = [...new Set(clientes.map(c => c.cidade))];
+  useEffect(() => {
+    const fetchConvertidos = async () => {
+      const { data } = await supabase
+        .from('leads_simulacao')
+        .select('*')
+        .eq('status', 'convertido');
+      if (data) {
+        const convertidos: Cliente[] = data.map(l => ({
+          id: `lead-${l.id}`,
+          nomeCompleto: l.nome,
+          telefone: l.telefone,
+          email: l.email || '',
+          cpfCnpj: l.cpf_cnpj,
+          tipoCliente: (l.tipo_cliente || 'residencial') as TipoCliente,
+          distribuidora: l.distribuidora,
+          cidade: l.cidade || '',
+          estado: l.estado || '',
+          endereco: '',
+          unidadeConsumidora: '',
+          consumoMedioMensal: l.consumo_medio || 0,
+          valorMedioConta: l.valor_fatura,
+          observacoes: `Lead convertido. Economia: R$ ${l.economia_mensal.toFixed(2)}/mês`,
+          status: 'ativo' as StatusCliente,
+          criadoEm: l.created_at.split('T')[0],
+        }));
+        setClientesConvertidos(convertidos);
+      }
+    };
+    fetchConvertidos();
+  }, []);
+
+  const clientes = [...clientesConvertidos, ...clientesLocais.filter(c => 
+    !clientesConvertidos.some(cc => cc.cpfCnpj === c.cpfCnpj)
+  )];
+
+  const cidades = [...new Set(clientes.map(c => c.cidade).filter(Boolean))];
 
   const filtered = clientes.filter(c => {
     const matchBusca = !busca || c.nomeCompleto.toLowerCase().includes(busca.toLowerCase())
