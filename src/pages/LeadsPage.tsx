@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react';
-import { Search, Phone, Mail, RefreshCw, Clock, CheckCircle2, XCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Search, Phone, Mail, RefreshCw, Clock, CheckCircle2, XCircle, UserPlus, PhoneOff, ArrowRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
+import { useData } from '@/contexts/DataContext';
 import PageHeader from '@/components/PageHeader';
 import { formatarMoeda } from '@/utils/energyCalculations';
+import type { TipoCliente } from '@/types/energy';
 
 interface Lead {
   id: string;
@@ -40,6 +43,8 @@ export default function LeadsPage() {
   const [loading, setLoading] = useState(true);
   const [busca, setBusca] = useState('');
   const [filtroStatus, setFiltroStatus] = useState('todos');
+  const { adicionarCliente } = useData();
+  const navigate = useNavigate();
 
   const fetchLeads = async () => {
     setLoading(true);
@@ -144,13 +149,14 @@ export default function LeadsPage() {
               <th className="text-right p-3 font-medium text-muted-foreground">Economia/mês</th>
               <th className="text-left p-3 font-medium text-muted-foreground">Status</th>
               <th className="text-left p-3 font-medium text-muted-foreground">Data</th>
+              <th className="text-left p-3 font-medium text-muted-foreground">Ações</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={7} className="p-8 text-center text-muted-foreground">Carregando...</td></tr>
+              <tr><td colSpan={8} className="p-8 text-center text-muted-foreground">Carregando...</td></tr>
             ) : leadsFiltrados.length === 0 ? (
-              <tr><td colSpan={7} className="p-8 text-center text-muted-foreground">Nenhum lead encontrado</td></tr>
+              <tr><td colSpan={8} className="p-8 text-center text-muted-foreground">Nenhum lead encontrado</td></tr>
             ) : (
               leadsFiltrados.map(lead => (
                 <tr key={lead.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
@@ -190,6 +196,82 @@ export default function LeadsPage() {
                   </td>
                   <td className="p-3 text-muted-foreground text-xs">
                     {new Date(lead.created_at).toLocaleDateString('pt-BR')}
+                  </td>
+                  <td className="p-3">
+                    <div className="flex items-center gap-1.5">
+                      {lead.status !== 'convertido' && lead.status !== 'perdido' && (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 px-2 text-xs border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground"
+                            title="Converter em cliente"
+                            onClick={() => {
+                              adicionarCliente({
+                                nomeCompleto: lead.nome,
+                                telefone: lead.telefone,
+                                email: lead.email || '',
+                                cpfCnpj: lead.cpf_cnpj,
+                                tipoCliente: lead.tipo_cliente as TipoCliente,
+                                distribuidora: lead.distribuidora,
+                                cidade: lead.cidade || '',
+                                estado: lead.estado || '',
+                                endereco: '',
+                                unidadeConsumidora: '',
+                                consumoMedioMensal: 0,
+                                valorMedioConta: lead.valor_fatura,
+                                observacoes: `Lead convertido. Economia: ${formatarMoeda(lead.economia_mensal)}/mês`,
+                                status: 'ativo',
+                              });
+                              atualizarStatus(lead.id, 'convertido');
+                              toast.success(`${lead.nome} adicionado como cliente!`);
+                              navigate('/clientes');
+                            }}
+                          >
+                            <UserPlus className="h-3.5 w-3.5 mr-1" />
+                            Cliente
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 px-2 text-xs border-destructive/30 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                            title="Não aceitou — entrar em contato depois"
+                            onClick={() => {
+                              atualizarStatus(lead.id, 'perdido');
+                              toast('Marcado para novo contato futuro', { icon: '🔴' });
+                            }}
+                          >
+                            <PhoneOff className="h-3.5 w-3.5 mr-1" />
+                            Recusou
+                          </Button>
+                        </>
+                      )}
+                      {lead.status === 'convertido' && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 px-2 text-xs text-primary"
+                          onClick={() => navigate('/clientes')}
+                        >
+                          <ArrowRight className="h-3.5 w-3.5 mr-1" />
+                          Ver cliente
+                        </Button>
+                      )}
+                      {lead.status === 'perdido' && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 px-2 text-xs border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground"
+                          onClick={() => {
+                            atualizarStatus(lead.id, 'novo');
+                            toast.success('Lead reaberto para novo contato');
+                          }}
+                        >
+                          <RefreshCw className="h-3.5 w-3.5 mr-1" />
+                          Reabrir
+                        </Button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))
