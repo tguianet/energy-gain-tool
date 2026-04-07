@@ -11,6 +11,7 @@ const menuItems = [
   { label: 'Clientes', icon: Users, path: '/clientes' },
   { label: 'Simulador', icon: Calculator, path: '/simulador' },
   { label: 'Propostas', icon: FileText, path: '/propostas' },
+  { label: 'Leads', icon: UserPlus, path: '/leads' },
   { label: 'Contratos', icon: FileCheck, path: '/contratos' },
   { label: 'Relatórios', icon: BarChart3, path: '/relatorios' },
   { label: 'Configurações', icon: Settings, path: '/configuracoes' },
