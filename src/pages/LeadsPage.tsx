@@ -75,7 +75,9 @@ export default function LeadsPage() {
     }
   };
 
-  const leadsFiltrados = leads.filter(l => {
+  const leadsAtivos = leads.filter(l => l.status !== 'convertido');
+
+  const leadsFiltrados = leadsAtivos.filter(l => {
     const matchBusca = l.nome.toLowerCase().includes(busca.toLowerCase()) ||
       l.telefone.includes(busca) ||
       l.cpf_cnpj.includes(busca);
