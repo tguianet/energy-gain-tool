@@ -15,6 +15,7 @@ import ContratosPage from '@/pages/ContratosPage';
 import RelatoriosPage from '@/pages/RelatoriosPage';
 import ConfiguracoesPage from '@/pages/ConfiguracoesPage';
 import SimulacaoPublicaPage from '@/pages/SimulacaoPublicaPage';
+import LeadsPage from '@/pages/LeadsPage';
 import NotFound from './pages/NotFound';
 
 const queryClient = new QueryClient();
