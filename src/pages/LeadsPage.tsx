@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react';
-import { Search, Phone, Mail, RefreshCw, Clock, CheckCircle2, XCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Search, Phone, Mail, RefreshCw, Clock, CheckCircle2, XCircle, UserPlus, PhoneOff, ArrowRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
+import { useData } from '@/contexts/DataContext';
 import PageHeader from '@/components/PageHeader';
 import { formatarMoeda } from '@/utils/energyCalculations';
+import type { TipoCliente } from '@/types/energy';
 
 interface Lead {
   id: string;
