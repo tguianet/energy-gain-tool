@@ -25,9 +25,13 @@ export default function SimuladorPage() {
   const [consumoMedio, setConsumoMedio] = useState(clienteInicial?.consumoMedioMensal || 0);
   const [taxaDesconto, setTaxaDesconto] = useState(15);
   const [taxasFixas, setTaxasFixas] = useState(50);
+  const TAXA_COMISSAO = 3;
 
   const resultado = useMemo(
-    () => calcularSimulacao(valorFatura, taxasFixas, taxaDesconto),
+    () => {
+      const sim = calcularSimulacao(valorFatura, taxasFixas, taxaDesconto);
+      return { ...sim, comissao: sim.descontoReais * (TAXA_COMISSAO / 100) };
+    },
     [valorFatura, taxasFixas, taxaDesconto]
   );
 
