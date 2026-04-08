@@ -106,6 +106,10 @@ export default function SimuladorPage() {
               <Input value={nomeCliente} onChange={e => setNomeCliente(e.target.value)} />
             </div>
             <div className="space-y-1">
+              <label className="text-sm font-medium">Telefone</label>
+              <Input value={telefone} onChange={e => setTelefone(e.target.value)} placeholder="(00) 00000-0000" />
+            </div>
+            <div className="space-y-1">
               <label className="text-sm font-medium">Distribuidora</label>
               <Input value={distribuidora} onChange={e => setDistribuidora(e.target.value)} />
             </div>
