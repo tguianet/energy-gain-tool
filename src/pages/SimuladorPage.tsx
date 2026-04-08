@@ -82,6 +82,7 @@ export default function SimuladorPage() {
     { label: 'Valor Final', value: formatarMoeda(resultado.valorFinal), icon: <Zap className="h-5 w-5" />, color: 'text-foreground' },
     { label: 'Economia Mensal', value: formatarMoeda(resultado.economiaMensal), icon: <TrendingUp className="h-5 w-5" />, color: 'text-primary' },
     { label: 'Economia Anual', value: formatarMoeda(resultado.economiaAnual), icon: <TrendingUp className="h-5 w-5" />, color: 'text-primary' },
+    { label: 'Comissão (3%)', value: formatarMoeda(resultado.comissao), icon: <DollarSign className="h-5 w-5" />, color: 'text-primary' },
   ];
 
   return (
