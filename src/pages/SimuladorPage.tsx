@@ -19,6 +19,7 @@ export default function SimuladorPage() {
 
   const [clienteId, setClienteId] = useState(clienteIdParam || '');
   const [nomeCliente, setNomeCliente] = useState(clienteInicial?.nomeCompleto || '');
+  const [telefone, setTelefone] = useState(clienteInicial?.telefone || '');
   const [distribuidora, setDistribuidora] = useState(clienteInicial?.distribuidora || '');
   const [valorFatura, setValorFatura] = useState(clienteInicial?.valorMedioConta || 0);
   const [consumoMedio, setConsumoMedio] = useState(clienteInicial?.consumoMedioMensal || 0);
