@@ -19,6 +19,7 @@ export default function SimuladorPage() {
 
   const [clienteId, setClienteId] = useState(clienteIdParam || '');
   const [nomeCliente, setNomeCliente] = useState(clienteInicial?.nomeCompleto || '');
+  const [telefone, setTelefone] = useState(clienteInicial?.telefone || '');
   const [distribuidora, setDistribuidora] = useState(clienteInicial?.distribuidora || '');
   const [valorFatura, setValorFatura] = useState(clienteInicial?.valorMedioConta || 0);
   const [consumoMedio, setConsumoMedio] = useState(clienteInicial?.consumoMedioMensal || 0);
@@ -35,6 +36,7 @@ export default function SimuladorPage() {
     if (c) {
       setClienteId(c.id);
       setNomeCliente(c.nomeCompleto);
+      setTelefone(c.telefone);
       setDistribuidora(c.distribuidora);
       setValorFatura(c.valorMedioConta);
       setConsumoMedio(c.consumoMedioMensal);
@@ -102,6 +104,10 @@ export default function SimuladorPage() {
             <div className="space-y-1">
               <label className="text-sm font-medium">Nome do Cliente *</label>
               <Input value={nomeCliente} onChange={e => setNomeCliente(e.target.value)} />
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium">Telefone</label>
+              <Input value={telefone} onChange={e => setTelefone(e.target.value)} placeholder="(00) 00000-0000" />
             </div>
             <div className="space-y-1">
               <label className="text-sm font-medium">Distribuidora</label>
