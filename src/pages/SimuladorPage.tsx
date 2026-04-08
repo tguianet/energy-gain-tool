@@ -36,6 +36,7 @@ export default function SimuladorPage() {
     if (c) {
       setClienteId(c.id);
       setNomeCliente(c.nomeCompleto);
+      setTelefone(c.telefone);
       setDistribuidora(c.distribuidora);
       setValorFatura(c.valorMedioConta);
       setConsumoMedio(c.consumoMedioMensal);
