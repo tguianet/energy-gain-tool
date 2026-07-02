@@ -16,102 +16,95 @@ export type Database = {
     Tables: {
       clientes: {
         Row: {
-          id: string
-          nome_completo: string
-          telefone: string
-          whatsapp: string | null
-          email: string | null
-          foto_conta_energia_url: string | null
-          foto_cnh_url: string | null
-          cpf_cnpj: string
-          tipo_cliente: string
-          distribuidora: string | null
           cidade: string | null
-          estado: string | null
+          consumo_medio_mensal: number
+          cpf_cnpj: string
+          created_at: string
+          distribuidora: string | null
+          email: string | null
           endereco: string | null
-          unidade_consumidora: string | null
-          consumo_medio_mensal: number | null
-          valor_medio_conta: number | null
+          estado: string | null
+          id: string
+          lead_id: string | null
+          nome_completo: string
           observacoes: string | null
           status: string
-          lead_id: string | null
-          user_id: string
-          created_at: string
+          telefone: string
+          tipo_cliente: string
+          unidade_consumidora: string | null
+          valor_medio_conta: number
         }
         Insert: {
-          id?: string
-          nome_completo: string
-          telefone: string
-          whatsapp?: string | null
-          email?: string | null
-          foto_conta_energia_url?: string | null
-          foto_cnh_url?: string | null
-          cpf_cnpj?: string
-          tipo_cliente?: string
-          distribuidora?: string | null
           cidade?: string | null
-          estado?: string | null
+          consumo_medio_mensal?: number
+          cpf_cnpj: string
+          created_at?: string
+          distribuidora?: string | null
+          email?: string | null
           endereco?: string | null
-          unidade_consumidora?: string | null
-          consumo_medio_mensal?: number | null
-          valor_medio_conta?: number | null
+          estado?: string | null
+          id?: string
+          lead_id?: string | null
+          nome_completo: string
           observacoes?: string | null
           status?: string
-          lead_id?: string | null
-          user_id: string
-          created_at?: string
+          telefone: string
+          tipo_cliente?: string
+          unidade_consumidora?: string | null
+          valor_medio_conta?: number
         }
         Update: {
-          id?: string
-          nome_completo?: string
-          telefone?: string
-          whatsapp?: string | null
-          email?: string | null
-          foto_conta_energia_url?: string | null
-          foto_cnh_url?: string | null
-          cpf_cnpj?: string
-          tipo_cliente?: string
-          distribuidora?: string | null
           cidade?: string | null
-          estado?: string | null
+          consumo_medio_mensal?: number
+          cpf_cnpj?: string
+          created_at?: string
+          distribuidora?: string | null
+          email?: string | null
           endereco?: string | null
-          unidade_consumidora?: string | null
-          consumo_medio_mensal?: number | null
-          valor_medio_conta?: number | null
+          estado?: string | null
+          id?: string
+          lead_id?: string | null
+          nome_completo?: string
           observacoes?: string | null
           status?: string
-          lead_id?: string | null
-          user_id?: string
-          created_at?: string
+          telefone?: string
+          tipo_cliente?: string
+          unidade_consumidora?: string | null
+          valor_medio_conta?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "clientes_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads_simulacao"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       configuracoes: {
         Row: {
-          id: string
-          user_id: string
+          id: number
           nome_empresa: string
+          taxa_comissao: number
           taxa_desconto_padrao: number
           taxas_fixas_padrao: number
-          taxa_comissao: number
           updated_at: string
         }
         Insert: {
-          id?: string
-          user_id: string
+          id?: number
           nome_empresa?: string
+          taxa_comissao?: number
           taxa_desconto_padrao?: number
           taxas_fixas_padrao?: number
-          taxa_comissao?: number
           updated_at?: string
         }
         Update: {
-          id?: string
-          user_id?: string
+          id?: number
           nome_empresa?: string
+          taxa_comissao?: number
           taxa_desconto_padrao?: number
           taxas_fixas_padrao?: number
-          taxa_comissao?: number
           updated_at?: string
         }
         Relationships: []
@@ -139,57 +132,69 @@ export type Database = {
       }
       contratos: {
         Row: {
-          id: string
           cliente_id: string | null
-          proposta_id: string | null
-          nome_cliente: string
-          distribuidora: string | null
-          data_adesao: string
-          status: string
-          desconto_contratado: number
-          taxa_desconto: number
-          valor_original: number
-          valor_final: number
-          observacoes: string | null
-          historico: Json
-          user_id: string
           created_at: string
+          data_adesao: string
+          desconto_contratado: number
+          distribuidora: string | null
+          historico: Json | null
+          id: string
+          nome_cliente: string
+          observacoes: string | null
+          proposta_id: string | null
+          status: string
+          taxa_desconto: number
+          valor_final: number
+          valor_original: number
         }
         Insert: {
-          id?: string
           cliente_id?: string | null
-          proposta_id?: string | null
-          nome_cliente: string
-          distribuidora?: string | null
-          data_adesao?: string
-          status?: string
-          desconto_contratado: number
-          taxa_desconto: number
-          valor_original: number
-          valor_final: number
-          observacoes?: string | null
-          historico?: Json
-          user_id: string
           created_at?: string
+          data_adesao?: string
+          desconto_contratado: number
+          distribuidora?: string | null
+          historico?: Json | null
+          id?: string
+          nome_cliente: string
+          observacoes?: string | null
+          proposta_id?: string | null
+          status?: string
+          taxa_desconto: number
+          valor_final: number
+          valor_original: number
         }
         Update: {
-          id?: string
           cliente_id?: string | null
-          proposta_id?: string | null
-          nome_cliente?: string
-          distribuidora?: string | null
-          data_adesao?: string
-          status?: string
-          desconto_contratado?: number
-          taxa_desconto?: number
-          valor_original?: number
-          valor_final?: number
-          observacoes?: string | null
-          historico?: Json
-          user_id?: string
           created_at?: string
+          data_adesao?: string
+          desconto_contratado?: number
+          distribuidora?: string | null
+          historico?: Json | null
+          id?: string
+          nome_cliente?: string
+          observacoes?: string | null
+          proposta_id?: string | null
+          status?: string
+          taxa_desconto?: number
+          valor_final?: number
+          valor_original?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "contratos_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contratos_proposta_id_fkey"
+            columns: ["proposta_id"]
+            isOneToOne: false
+            referencedRelation: "propostas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       leads_simulacao: {
         Row: {
@@ -253,112 +258,150 @@ export type Database = {
       }
       propostas: {
         Row: {
-          id: string
-          simulacao_id: string | null
           cliente_id: string | null
-          nome_cliente: string
-          distribuidora: string | null
-          valor_atual: number
-          desconto_aplicado: number
-          taxa_desconto: number
-          economia_mensal: number
-          economia_anual: number
-          valor_final: number
-          resumo_comercial: string | null
-          status: string
-          user_id: string
           created_at: string
+          desconto_aplicado: number
+          distribuidora: string | null
+          economia_anual: number
+          economia_mensal: number
+          id: string
+          nome_cliente: string
+          resumo_comercial: string | null
+          simulacao_id: string | null
+          status: string
+          taxa_desconto: number
+          valor_atual: number
+          valor_final: number
         }
         Insert: {
-          id?: string
-          simulacao_id?: string | null
           cliente_id?: string | null
-          nome_cliente: string
-          distribuidora?: string | null
-          valor_atual: number
-          desconto_aplicado: number
-          taxa_desconto: number
-          economia_mensal: number
-          economia_anual: number
-          valor_final: number
-          resumo_comercial?: string | null
-          status?: string
-          user_id: string
           created_at?: string
+          desconto_aplicado: number
+          distribuidora?: string | null
+          economia_anual: number
+          economia_mensal: number
+          id?: string
+          nome_cliente: string
+          resumo_comercial?: string | null
+          simulacao_id?: string | null
+          status?: string
+          taxa_desconto: number
+          valor_atual: number
+          valor_final: number
         }
         Update: {
-          id?: string
-          simulacao_id?: string | null
           cliente_id?: string | null
-          nome_cliente?: string
-          distribuidora?: string | null
-          valor_atual?: number
-          desconto_aplicado?: number
-          taxa_desconto?: number
-          economia_mensal?: number
-          economia_anual?: number
-          valor_final?: number
-          resumo_comercial?: string | null
-          status?: string
-          user_id?: string
           created_at?: string
+          desconto_aplicado?: number
+          distribuidora?: string | null
+          economia_anual?: number
+          economia_mensal?: number
+          id?: string
+          nome_cliente?: string
+          resumo_comercial?: string | null
+          simulacao_id?: string | null
+          status?: string
+          taxa_desconto?: number
+          valor_atual?: number
+          valor_final?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "propostas_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "propostas_simulacao_id_fkey"
+            columns: ["simulacao_id"]
+            isOneToOne: false
+            referencedRelation: "simulacoes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       simulacoes: {
         Row: {
-          id: string
+          base_desconto: number
           cliente_id: string | null
-          nome_cliente: string
+          consumo_medio: number
+          created_at: string
+          desconto_reais: number
           distribuidora: string | null
-          valor_fatura: number
-          consumo_medio: number | null
+          economia_anual: number
+          economia_mensal: number
+          id: string
+          nome_cliente: string
+          percentual_economia: number
           taxa_desconto: number
           taxas_fixas: number
-          base_desconto: number
-          desconto_reais: number
+          valor_fatura: number
           valor_final: number
-          economia_mensal: number
-          economia_anual: number
-          percentual_economia: number
-          user_id: string
-          created_at: string
         }
         Insert: {
-          id?: string
+          base_desconto: number
           cliente_id?: string | null
-          nome_cliente: string
+          consumo_medio?: number
+          created_at?: string
+          desconto_reais: number
           distribuidora?: string | null
-          valor_fatura: number
-          consumo_medio?: number | null
+          economia_anual: number
+          economia_mensal: number
+          id?: string
+          nome_cliente: string
+          percentual_economia: number
           taxa_desconto: number
           taxas_fixas?: number
-          base_desconto: number
-          desconto_reais: number
+          valor_fatura: number
           valor_final: number
-          economia_mensal: number
-          economia_anual: number
-          percentual_economia: number
-          user_id: string
-          created_at?: string
         }
         Update: {
-          id?: string
+          base_desconto?: number
           cliente_id?: string | null
-          nome_cliente?: string
+          consumo_medio?: number
+          created_at?: string
+          desconto_reais?: number
           distribuidora?: string | null
-          valor_fatura?: number
-          consumo_medio?: number | null
+          economia_anual?: number
+          economia_mensal?: number
+          id?: string
+          nome_cliente?: string
+          percentual_economia?: number
           taxa_desconto?: number
           taxas_fixas?: number
-          base_desconto?: number
-          desconto_reais?: number
+          valor_fatura?: number
           valor_final?: number
-          economia_mensal?: number
-          economia_anual?: number
-          percentual_economia?: number
-          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "simulacoes_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
           created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
         }
         Relationships: []
       }
@@ -367,10 +410,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
+      status_cliente: "ativo" | "inativo" | "prospecto"
+      status_contrato: "ativo" | "pendente" | "cancelado"
+      status_proposta: "gerada" | "enviada" | "aceita" | "recusada"
+      tipo_cliente: "residencial" | "comercial" | "rural"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -497,6 +550,12 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+      status_cliente: ["ativo", "inativo", "prospecto"],
+      status_contrato: ["ativo", "pendente", "cancelado"],
+      status_proposta: ["gerada", "enviada", "aceita", "recusada"],
+      tipo_cliente: ["residencial", "comercial", "rural"],
+    },
   },
 } as const
