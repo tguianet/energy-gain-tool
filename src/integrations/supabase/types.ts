@@ -14,6 +14,188 @@ export type Database = {
   }
   public: {
     Tables: {
+      clientes: {
+        Row: {
+          cidade: string | null
+          consumo_medio_mensal: number
+          cpf_cnpj: string
+          created_at: string
+          distribuidora: string | null
+          email: string | null
+          endereco: string | null
+          estado: string | null
+          id: string
+          lead_id: string | null
+          nome_completo: string
+          observacoes: string | null
+          status: string
+          telefone: string
+          tipo_cliente: string
+          unidade_consumidora: string | null
+          valor_medio_conta: number
+        }
+        Insert: {
+          cidade?: string | null
+          consumo_medio_mensal?: number
+          cpf_cnpj: string
+          created_at?: string
+          distribuidora?: string | null
+          email?: string | null
+          endereco?: string | null
+          estado?: string | null
+          id?: string
+          lead_id?: string | null
+          nome_completo: string
+          observacoes?: string | null
+          status?: string
+          telefone: string
+          tipo_cliente?: string
+          unidade_consumidora?: string | null
+          valor_medio_conta?: number
+        }
+        Update: {
+          cidade?: string | null
+          consumo_medio_mensal?: number
+          cpf_cnpj?: string
+          created_at?: string
+          distribuidora?: string | null
+          email?: string | null
+          endereco?: string | null
+          estado?: string | null
+          id?: string
+          lead_id?: string | null
+          nome_completo?: string
+          observacoes?: string | null
+          status?: string
+          telefone?: string
+          tipo_cliente?: string
+          unidade_consumidora?: string | null
+          valor_medio_conta?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clientes_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads_simulacao"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      configuracoes: {
+        Row: {
+          id: number
+          nome_empresa: string
+          taxa_comissao: number
+          taxa_desconto_padrao: number
+          taxas_fixas_padrao: number
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          nome_empresa?: string
+          taxa_comissao?: number
+          taxa_desconto_padrao?: number
+          taxas_fixas_padrao?: number
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          nome_empresa?: string
+          taxa_comissao?: number
+          taxa_desconto_padrao?: number
+          taxas_fixas_padrao?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      configuracoes_publicas: {
+        Row: {
+          id: number
+          taxa_desconto_padrao: number
+          taxas_fixas_padrao: number
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          taxa_desconto_padrao?: number
+          taxas_fixas_padrao?: number
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          taxa_desconto_padrao?: number
+          taxas_fixas_padrao?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      contratos: {
+        Row: {
+          cliente_id: string | null
+          created_at: string
+          data_adesao: string
+          desconto_contratado: number
+          distribuidora: string | null
+          historico: Json | null
+          id: string
+          nome_cliente: string
+          observacoes: string | null
+          proposta_id: string | null
+          status: string
+          taxa_desconto: number
+          valor_final: number
+          valor_original: number
+        }
+        Insert: {
+          cliente_id?: string | null
+          created_at?: string
+          data_adesao?: string
+          desconto_contratado: number
+          distribuidora?: string | null
+          historico?: Json | null
+          id?: string
+          nome_cliente: string
+          observacoes?: string | null
+          proposta_id?: string | null
+          status?: string
+          taxa_desconto: number
+          valor_final: number
+          valor_original: number
+        }
+        Update: {
+          cliente_id?: string | null
+          created_at?: string
+          data_adesao?: string
+          desconto_contratado?: number
+          distribuidora?: string | null
+          historico?: Json | null
+          id?: string
+          nome_cliente?: string
+          observacoes?: string | null
+          proposta_id?: string | null
+          status?: string
+          taxa_desconto?: number
+          valor_final?: number
+          valor_original?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contratos_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contratos_proposta_id_fkey"
+            columns: ["proposta_id"]
+            isOneToOne: false
+            referencedRelation: "propostas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads_simulacao: {
         Row: {
           cidade: string | null
@@ -74,6 +256,134 @@ export type Database = {
         }
         Relationships: []
       }
+      propostas: {
+        Row: {
+          cliente_id: string | null
+          created_at: string
+          desconto_aplicado: number
+          distribuidora: string | null
+          economia_anual: number
+          economia_mensal: number
+          id: string
+          nome_cliente: string
+          resumo_comercial: string | null
+          simulacao_id: string | null
+          status: string
+          taxa_desconto: number
+          valor_atual: number
+          valor_final: number
+        }
+        Insert: {
+          cliente_id?: string | null
+          created_at?: string
+          desconto_aplicado: number
+          distribuidora?: string | null
+          economia_anual: number
+          economia_mensal: number
+          id?: string
+          nome_cliente: string
+          resumo_comercial?: string | null
+          simulacao_id?: string | null
+          status?: string
+          taxa_desconto: number
+          valor_atual: number
+          valor_final: number
+        }
+        Update: {
+          cliente_id?: string | null
+          created_at?: string
+          desconto_aplicado?: number
+          distribuidora?: string | null
+          economia_anual?: number
+          economia_mensal?: number
+          id?: string
+          nome_cliente?: string
+          resumo_comercial?: string | null
+          simulacao_id?: string | null
+          status?: string
+          taxa_desconto?: number
+          valor_atual?: number
+          valor_final?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "propostas_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "propostas_simulacao_id_fkey"
+            columns: ["simulacao_id"]
+            isOneToOne: false
+            referencedRelation: "simulacoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      simulacoes: {
+        Row: {
+          base_desconto: number
+          cliente_id: string | null
+          consumo_medio: number
+          created_at: string
+          desconto_reais: number
+          distribuidora: string | null
+          economia_anual: number
+          economia_mensal: number
+          id: string
+          nome_cliente: string
+          percentual_economia: number
+          taxa_desconto: number
+          taxas_fixas: number
+          valor_fatura: number
+          valor_final: number
+        }
+        Insert: {
+          base_desconto: number
+          cliente_id?: string | null
+          consumo_medio?: number
+          created_at?: string
+          desconto_reais: number
+          distribuidora?: string | null
+          economia_anual: number
+          economia_mensal: number
+          id?: string
+          nome_cliente: string
+          percentual_economia: number
+          taxa_desconto: number
+          taxas_fixas?: number
+          valor_fatura: number
+          valor_final: number
+        }
+        Update: {
+          base_desconto?: number
+          cliente_id?: string | null
+          consumo_medio?: number
+          created_at?: string
+          desconto_reais?: number
+          distribuidora?: string | null
+          economia_anual?: number
+          economia_mensal?: number
+          id?: string
+          nome_cliente?: string
+          percentual_economia?: number
+          taxa_desconto?: number
+          taxas_fixas?: number
+          valor_fatura?: number
+          valor_final?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "simulacoes_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -110,6 +420,10 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      status_cliente: "ativo" | "inativo" | "prospecto"
+      status_contrato: "ativo" | "pendente" | "cancelado"
+      status_proposta: "gerada" | "enviada" | "aceita" | "recusada"
+      tipo_cliente: "residencial" | "comercial" | "rural"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -238,6 +552,10 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      status_cliente: ["ativo", "inativo", "prospecto"],
+      status_contrato: ["ativo", "pendente", "cancelado"],
+      status_proposta: ["gerada", "enviada", "aceita", "recusada"],
+      tipo_cliente: ["residencial", "comercial", "rural"],
     },
   },
 } as const
