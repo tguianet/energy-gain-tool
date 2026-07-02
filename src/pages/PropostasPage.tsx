@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Eye, FileCheck, Send, Printer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,16 +7,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useData } from '@/contexts/DataContext';
 import { formatarMoeda, formatarPercentual } from '@/utils/energyCalculations';
+import { linkWhatsApp } from '@/utils/phone';
 import PageHeader from '@/components/PageHeader';
 import type { Proposta } from '@/types/energy';
 import { toast } from 'sonner';
 
 export default function PropostasPage() {
-  const { propostas, atualizarProposta, adicionarContrato } = useData();
+  const { propostas, clientes, atualizarProposta, adicionarContrato } = useData();
   const navigate = useNavigate();
   const [busca, setBusca] = useState('');
   const [filtroStatus, setFiltroStatus] = useState('todos');
   const [viewProposta, setViewProposta] = useState<Proposta | null>(null);
+
+  const getTelefoneCliente = (clienteId: string) =>
+    clientes.find(c => c.id === clienteId)?.telefone ?? '';
 
   const filtered = propostas.filter(p => {
     const matchBusca = !busca || p.nomeCliente.toLowerCase().includes(busca.toLowerCase());
@@ -31,32 +35,41 @@ export default function PropostasPage() {
     recusada: 'bg-destructive/10 text-destructive',
   };
 
-  const handleEnviarWhatsApp = (p: Proposta) => {
-    const msg = encodeURIComponent(
+  const handleEnviarWhatsApp = async (p: Proposta) => {
+    const telefone = getTelefoneCliente(p.clienteId);
+    const msg =
       `Olá ${p.nomeCliente}! Segue sua proposta de energia por assinatura:\n\n` +
       `💡 Valor atual: ${formatarMoeda(p.valorAtual)}\n` +
       `📉 Desconto: ${formatarPercentual(p.taxaDesconto)} (${formatarMoeda(p.descontoAplicado)})\n` +
       `✅ Valor final: ${formatarMoeda(p.valorFinal)}\n` +
       `💰 Economia mensal: ${formatarMoeda(p.economiaMensal)}\n` +
       `📊 Economia anual: ${formatarMoeda(p.economiaAnual)}\n\n` +
-      `Entre em contato para aderir!`
-    );
-    window.open(`https://wa.me/?text=${msg}`, '_blank');
-    atualizarProposta(p.id, { status: 'enviada' });
-    toast.success('Proposta enviada via WhatsApp!');
+      `Entre em contato para aderir!`;
+
+    window.open(linkWhatsApp(telefone, msg), '_blank');
+    try {
+      await atualizarProposta(p.id, { status: 'enviada' });
+      toast.success('Proposta enviada via WhatsApp!');
+    } catch {
+      toast.error('Erro ao atualizar status da proposta');
+    }
   };
 
-  const handleGerarContrato = (p: Proposta) => {
-    adicionarContrato({
-      clienteId: p.clienteId, propostaId: p.id, nomeCliente: p.nomeCliente,
-      distribuidora: p.distribuidora, dataAdesao: new Date().toISOString().split('T')[0],
-      status: 'pendente', descontoContratado: p.descontoAplicado, taxaDesconto: p.taxaDesconto,
-      valorOriginal: p.valorAtual, valorFinal: p.valorFinal,
-      observacoes: '', historico: [{ data: new Date().toISOString().split('T')[0], descricao: 'Contrato gerado a partir da proposta' }],
-    });
-    atualizarProposta(p.id, { status: 'aceita' });
-    toast.success('Contrato gerado com sucesso!');
-    navigate('/contratos');
+  const handleGerarContrato = async (p: Proposta) => {
+    try {
+      await adicionarContrato({
+        clienteId: p.clienteId, propostaId: p.id, nomeCliente: p.nomeCliente,
+        distribuidora: p.distribuidora, dataAdesao: new Date().toISOString().split('T')[0],
+        status: 'pendente', descontoContratado: p.descontoAplicado, taxaDesconto: p.taxaDesconto,
+        valorOriginal: p.valorAtual, valorFinal: p.valorFinal,
+        observacoes: '', historico: [{ data: new Date().toISOString().split('T')[0], descricao: 'Contrato gerado a partir da proposta' }],
+      });
+      await atualizarProposta(p.id, { status: 'aceita' });
+      toast.success('Contrato gerado com sucesso!');
+      navigate('/contratos');
+    } catch {
+      toast.error('Erro ao gerar contrato');
+    }
   };
 
   const handleImprimir = () => window.print();
@@ -133,7 +146,6 @@ export default function PropostasPage() {
         </table>
       </div>
 
-      {/* View Modal */}
       <Dialog open={!!viewProposta} onOpenChange={() => setViewProposta(null)}>
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>Proposta Comercial</DialogTitle></DialogHeader>

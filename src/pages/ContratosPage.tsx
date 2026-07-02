@@ -37,15 +37,18 @@ export default function ContratosPage() {
     setEditObs(c.observacoes);
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (!editContrato) return;
     const newHistorico = [...editContrato.historico];
     if (editStatus !== editContrato.status) {
       newHistorico.push({ data: new Date().toISOString().split('T')[0], descricao: `Status alterado para ${editStatus}` });
     }
-    atualizarContrato(editContrato.id, { status: editStatus, observacoes: editObs, historico: newHistorico });
-    setEditContrato(null);
-    toast.success('Contrato atualizado!');
+    try {
+      await atualizarContrato(editContrato.id, { status: editStatus, observacoes: editObs, historico: newHistorico });
+      setEditContrato(null);
+    } catch {
+      toast.error('Erro ao atualizar contrato');
+    }
   };
 
   return (

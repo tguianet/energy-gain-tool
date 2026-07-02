@@ -1,36 +1,41 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Zap, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
+import { loginSchema } from '@/utils/validators';
 
-interface LoginPageProps {
-  onLogin: () => void;
-}
-
-export default function LoginPage({ onLogin }: LoginPageProps) {
+export default function LoginPage() {
+  const { signIn } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
-      toast.error('Preencha todos os campos');
+    const parsed = loginSchema.safeParse({ email, password });
+    if (!parsed.success) {
+      toast.error(parsed.error.errors[0]?.message ?? 'Dados inválidos');
       return;
     }
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      await signIn(parsed.data.email, parsed.data.password);
       toast.success('Login realizado com sucesso!');
-      onLogin();
-    }, 800);
+      navigate('/dashboard');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Erro ao fazer login');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="flex min-h-screen">
-      {/* Left - Branding */}
       <div className="hidden lg:flex lg:w-1/2 gradient-energy flex-col justify-center items-center p-12 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -55,22 +60,9 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
           <p className="text-lg text-primary-foreground/90 max-w-md">
             Plataforma completa para gestão de energia por assinatura. Simule descontos, gere propostas e gerencie contratos.
           </p>
-          <div className="flex gap-8 mt-8">
-            {[
-              { label: 'Economia', value: 'Até 25%' },
-              { label: 'Clientes', value: '500+' },
-              { label: 'Contratos', value: '350+' },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <p className="text-2xl font-bold text-primary-foreground">{stat.value}</p>
-                <p className="text-sm text-primary-foreground/70">{stat.label}</p>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
 
-      {/* Right - Form */}
       <div className="flex w-full lg:w-1/2 items-center justify-center p-8">
         <div className="w-full max-w-md space-y-8">
           <div className="lg:hidden flex items-center gap-3 justify-center mb-4">
@@ -96,6 +88,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                   className="pl-10"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
                 />
               </div>
             </div>
@@ -109,6 +102,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                   className="pl-10 pr-10"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
                 />
                 <button
                   type="button"
@@ -118,16 +112,6 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" className="rounded" />
-                Lembrar-me
-              </label>
-              <button type="button" className="text-sm text-primary hover:underline">
-                Esqueceu a senha?
-              </button>
             </div>
 
             <Button type="submit" className="w-full gradient-energy border-0 text-primary-foreground h-11" disabled={loading}>

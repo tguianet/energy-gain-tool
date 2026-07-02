@@ -1,18 +1,18 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Calculator, Zap, TrendingDown, TrendingUp, DollarSign, Percent, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useData } from '@/contexts/DataContext';
-import { calcularSimulacao, formatarMoeda, formatarPercentual } from '@/utils/energyCalculations';
+import { calcularSimulacao, calcularComissao, formatarMoeda, formatarPercentual } from '@/utils/energyCalculations';
 import PageHeader from '@/components/PageHeader';
 import { toast } from 'sonner';
 
 export default function SimuladorPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { clientes, adicionarSimulacao, adicionarProposta } = useData();
+  const { clientes, config, adicionarSimulacao, adicionarProposta } = useData();
 
   const clienteIdParam = searchParams.get('clienteId');
   const clienteInicial = clientes.find(c => c.id === clienteIdParam);
@@ -23,17 +23,19 @@ export default function SimuladorPage() {
   const [distribuidora, setDistribuidora] = useState(clienteInicial?.distribuidora || '');
   const [valorFatura, setValorFatura] = useState(clienteInicial?.valorMedioConta || 0);
   const [consumoMedio, setConsumoMedio] = useState(clienteInicial?.consumoMedioMensal || 0);
-  const [taxaDesconto, setTaxaDesconto] = useState(15);
-  const [taxasFixas, setTaxasFixas] = useState(50);
-  const TAXA_COMISSAO = 3;
+  const [taxaDesconto, setTaxaDesconto] = useState(config.taxaDescontoPadrao);
+  const [taxasFixas, setTaxasFixas] = useState(config.taxasFixasPadrao);
+  const [salvando, setSalvando] = useState(false);
 
-  const resultado = useMemo(
-    () => {
-      const sim = calcularSimulacao(valorFatura, taxasFixas, taxaDesconto);
-      return { ...sim, comissao: sim.descontoReais * (TAXA_COMISSAO / 100) };
-    },
-    [valorFatura, taxasFixas, taxaDesconto]
-  );
+  useEffect(() => {
+    setTaxaDesconto(config.taxaDescontoPadrao);
+    setTaxasFixas(config.taxasFixasPadrao);
+  }, [config.taxaDescontoPadrao, config.taxasFixasPadrao]);
+
+  const resultado = useMemo(() => {
+    const sim = calcularSimulacao(valorFatura, taxasFixas, taxaDesconto);
+    return { ...sim, comissao: calcularComissao(sim.descontoReais, config.taxaComissao) };
+  }, [valorFatura, taxasFixas, taxaDesconto, config.taxaComissao]);
 
   const handleClienteSelect = (id: string) => {
     const c = clientes.find(cl => cl.id === id);
@@ -47,31 +49,48 @@ export default function SimuladorPage() {
     }
   };
 
-  const handleSalvarSimulacao = () => {
+  const handleSalvarSimulacao = async () => {
     if (!nomeCliente || valorFatura <= 0) {
-      toast.error('Preencha os campos obrigatórios'); return;
+      toast.error('Preencha os campos obrigatórios');
+      return null;
     }
-    const sim = adicionarSimulacao({
-      clienteId, nomeCliente, distribuidora, valorFatura, consumoMedio,
-      taxaDesconto, taxasFixas, ...resultado,
-    });
-    toast.success('Simulação salva com sucesso!');
-    return sim;
+    setSalvando(true);
+    try {
+      const sim = await adicionarSimulacao({
+        clienteId, nomeCliente, distribuidora, valorFatura, consumoMedio,
+        taxaDesconto, taxasFixas,
+        baseDesconto: resultado.baseDesconto,
+        descontoReais: resultado.descontoReais,
+        valorFinal: resultado.valorFinal,
+        economiaMensal: resultado.economiaMensal,
+        economiaAnual: resultado.economiaAnual,
+        percentualEconomia: resultado.percentualEconomia,
+      });
+      toast.success('Simulação salva com sucesso!');
+      return sim;
+    } finally {
+      setSalvando(false);
+    }
   };
 
-  const handleGerarProposta = () => {
-    const sim = handleSalvarSimulacao();
+  const handleGerarProposta = async () => {
+    const sim = await handleSalvarSimulacao();
     if (!sim) return;
-    adicionarProposta({
-      simulacaoId: sim.id, clienteId, nomeCliente, distribuidora,
-      valorAtual: valorFatura, descontoAplicado: resultado.descontoReais,
-      taxaDesconto, economiaMensal: resultado.economiaMensal,
-      economiaAnual: resultado.economiaAnual, valorFinal: resultado.valorFinal,
-      resumoComercial: `Proposta de energia por assinatura com ${taxaDesconto}% de desconto para ${nomeCliente}. Economia mensal de ${formatarMoeda(resultado.economiaMensal)}.`,
-      status: 'gerada',
-    });
-    toast.success('Proposta gerada com sucesso!');
-    navigate('/propostas');
+    setSalvando(true);
+    try {
+      await adicionarProposta({
+        simulacaoId: sim.id, clienteId, nomeCliente, distribuidora,
+        valorAtual: valorFatura, descontoAplicado: resultado.descontoReais,
+        taxaDesconto, economiaMensal: resultado.economiaMensal,
+        economiaAnual: resultado.economiaAnual, valorFinal: resultado.valorFinal,
+        resumoComercial: `Proposta de energia por assinatura com ${taxaDesconto}% de desconto para ${nomeCliente}. Economia mensal de ${formatarMoeda(resultado.economiaMensal)}.`,
+        status: 'gerada',
+      });
+      toast.success('Proposta gerada com sucesso!');
+      navigate('/propostas');
+    } finally {
+      setSalvando(false);
+    }
   };
 
   const cards = [
@@ -82,7 +101,7 @@ export default function SimuladorPage() {
     { label: 'Valor Final', value: formatarMoeda(resultado.valorFinal), icon: <Zap className="h-5 w-5" />, color: 'text-foreground' },
     { label: 'Economia Mensal', value: formatarMoeda(resultado.economiaMensal), icon: <TrendingUp className="h-5 w-5" />, color: 'text-primary' },
     { label: 'Economia Anual', value: formatarMoeda(resultado.economiaAnual), icon: <TrendingUp className="h-5 w-5" />, color: 'text-primary' },
-    { label: 'Comissão (3%)', value: formatarMoeda(resultado.comissao), icon: <DollarSign className="h-5 w-5" />, color: 'text-primary' },
+    { label: `Comissão (${config.taxaComissao}%)`, value: formatarMoeda(resultado.comissao), icon: <DollarSign className="h-5 w-5" />, color: 'text-primary' },
   ];
 
   return (
@@ -90,7 +109,6 @@ export default function SimuladorPage() {
       <PageHeader title="Simulador de Energia" description="Calcule a economia com energia por assinatura" />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Form */}
         <div className="rounded-xl border bg-card p-6 shadow-card space-y-5">
           <h3 className="font-semibold flex items-center gap-2">
             <Calculator className="h-5 w-5 text-primary" /> Dados da Simulação
@@ -141,16 +159,15 @@ export default function SimuladorPage() {
           </div>
 
           <div className="flex gap-3 pt-2">
-            <Button onClick={handleSalvarSimulacao} variant="outline" className="flex-1">
+            <Button onClick={handleSalvarSimulacao} variant="outline" className="flex-1" disabled={salvando}>
               Salvar Simulação
             </Button>
-            <Button onClick={handleGerarProposta} className="flex-1 gradient-energy border-0 text-primary-foreground">
+            <Button onClick={handleGerarProposta} className="flex-1 gradient-energy border-0 text-primary-foreground" disabled={salvando}>
               <FileText className="h-4 w-4 mr-2" /> Gerar Proposta
             </Button>
           </div>
         </div>
 
-        {/* Results */}
         <div className="space-y-4">
           <div className="rounded-xl gradient-energy p-6 text-primary-foreground shadow-glow">
             <p className="text-sm opacity-90">Economia Real</p>

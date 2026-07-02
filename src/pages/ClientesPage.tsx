@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Plus, Search, Edit, Trash2, Calculator } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -6,12 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useData } from '@/contexts/DataContext';
-import { supabase } from '@/integrations/supabase/client';
 import PageHeader from '@/components/PageHeader';
+import { ESTADOS_BR } from '@/constants/energy';
+import { clienteFormSchema } from '@/utils/validators';
 import type { Cliente, TipoCliente, StatusCliente } from '@/types/energy';
 import { toast } from 'sonner';
-
-const estadosBR = ['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO'];
 
 const emptyCliente = {
   nomeCompleto: '', telefone: '', email: '', cpfCnpj: '',
@@ -21,7 +20,7 @@ const emptyCliente = {
 };
 
 export default function ClientesPage() {
-  const { clientes: clientesLocais, adicionarCliente, atualizarCliente, removerCliente } = useData();
+  const { clientes, adicionarCliente, atualizarCliente, removerCliente, loading } = useData();
   const navigate = useNavigate();
   const [busca, setBusca] = useState('');
   const [filtroStatus, setFiltroStatus] = useState<string>('todos');
@@ -30,42 +29,7 @@ export default function ClientesPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyCliente);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
-  const [clientesConvertidos, setClientesConvertidos] = useState<Cliente[]>([]);
-
-  useEffect(() => {
-    const fetchConvertidos = async () => {
-      const { data } = await supabase
-        .from('leads_simulacao')
-        .select('*')
-        .eq('status', 'convertido');
-      if (data) {
-        const convertidos: Cliente[] = data.map(l => ({
-          id: `lead-${l.id}`,
-          nomeCompleto: l.nome,
-          telefone: l.telefone,
-          email: l.email || '',
-          cpfCnpj: l.cpf_cnpj,
-          tipoCliente: (l.tipo_cliente || 'residencial') as TipoCliente,
-          distribuidora: l.distribuidora,
-          cidade: l.cidade || '',
-          estado: l.estado || '',
-          endereco: '',
-          unidadeConsumidora: '',
-          consumoMedioMensal: l.consumo_medio || 0,
-          valorMedioConta: l.valor_fatura,
-          observacoes: `Lead convertido. Economia: R$ ${l.economia_mensal.toFixed(2)}/mês`,
-          status: 'ativo' as StatusCliente,
-          criadoEm: l.created_at.split('T')[0],
-        }));
-        setClientesConvertidos(convertidos);
-      }
-    };
-    fetchConvertidos();
-  }, []);
-
-  const clientes = [...clientesConvertidos, ...clientesLocais.filter(c => 
-    !clientesConvertidos.some(cc => cc.cpfCnpj === c.cpfCnpj)
-  )];
+  const [salvando, setSalvando] = useState(false);
 
   const cidades = [...new Set(clientes.map(c => c.cidade).filter(Boolean))];
 
@@ -90,24 +54,28 @@ export default function ClientesPage() {
     setModalOpen(true);
   };
 
-  const handleSave = () => {
-    if (!form.nomeCompleto || !form.telefone || !form.cpfCnpj) {
-      toast.error('Preencha os campos obrigatórios'); return;
+  const handleSave = async () => {
+    const parsed = clienteFormSchema.safeParse(form);
+    if (!parsed.success) {
+      toast.error(parsed.error.errors[0]?.message ?? 'Dados inválidos');
+      return;
     }
-    if (editingId) {
-      atualizarCliente(editingId, form);
-      toast.success('Cliente atualizado!');
-    } else {
-      adicionarCliente(form);
-      toast.success('Cliente cadastrado!');
+    setSalvando(true);
+    try {
+      if (editingId) {
+        await atualizarCliente(editingId, form);
+      } else {
+        await adicionarCliente(form);
+      }
+      setModalOpen(false);
+    } finally {
+      setSalvando(false);
     }
-    setModalOpen(false);
   };
 
-  const handleDelete = (id: string) => {
-    removerCliente(id);
+  const handleDelete = async (id: string) => {
+    await removerCliente(id);
     setDeleteConfirm(null);
-    toast.success('Cliente removido!');
   };
 
   const updateField = (field: string, value: string | number) => setForm(prev => ({ ...prev, [field]: value }));
@@ -120,7 +88,6 @@ export default function ClientesPage() {
         </Button>
       </PageHeader>
 
-      {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -144,7 +111,6 @@ export default function ClientesPage() {
         </Select>
       </div>
 
-      {/* Table */}
       <div className="rounded-xl border bg-card shadow-card overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
@@ -158,7 +124,9 @@ export default function ClientesPage() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map(c => (
+            {loading ? (
+              <tr><td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">Carregando...</td></tr>
+            ) : filtered.map(c => (
               <tr key={c.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
                 <td className="px-4 py-3">
                   <div>
@@ -197,14 +165,13 @@ export default function ClientesPage() {
                 </td>
               </tr>
             ))}
-            {filtered.length === 0 && (
+            {!loading && filtered.length === 0 && (
               <tr><td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">Nenhum cliente encontrado</td></tr>
             )}
           </tbody>
         </table>
       </div>
 
-      {/* Form Modal */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -250,7 +217,7 @@ export default function ClientesPage() {
               <label className="text-sm font-medium">Estado</label>
               <Select value={form.estado} onValueChange={v => updateField('estado', v)}>
                 <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                <SelectContent>{estadosBR.map(uf => <SelectItem key={uf} value={uf}>{uf}</SelectItem>)}</SelectContent>
+                <SelectContent>{ESTADOS_BR.map(uf => <SelectItem key={uf} value={uf}>{uf}</SelectItem>)}</SelectContent>
               </Select>
             </div>
             <div className="sm:col-span-2 space-y-1">
@@ -287,12 +254,11 @@ export default function ClientesPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setModalOpen(false)}>Cancelar</Button>
-            <Button onClick={handleSave} className="gradient-energy border-0 text-primary-foreground">Salvar</Button>
+            <Button onClick={handleSave} disabled={salvando} className="gradient-energy border-0 text-primary-foreground">Salvar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirm */}
       <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
         <DialogContent className="max-w-sm">
           <DialogHeader><DialogTitle>Confirmar exclusão</DialogTitle></DialogHeader>

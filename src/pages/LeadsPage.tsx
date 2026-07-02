@@ -1,35 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Phone, Mail, RefreshCw, Clock, CheckCircle2, XCircle, UserPlus, PhoneOff, ArrowRight } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { Search, Phone, Mail, RefreshCw, Clock, CheckCircle2, XCircle, UserPlus, PhoneOff } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { useData } from '@/contexts/DataContext';
+import { useData, useLeads, useLeadMutations } from '@/contexts/DataContext';
 import PageHeader from '@/components/PageHeader';
-import { formatarMoeda } from '@/utils/energyCalculations';
-import type { TipoCliente } from '@/types/energy';
-
-interface Lead {
-  id: string;
-  nome: string;
-  telefone: string;
-  email: string | null;
-  cpf_cnpj: string;
-  tipo_cliente: string;
-  distribuidora: string;
-  cidade: string | null;
-  estado: string | null;
-  valor_fatura: number;
-  economia_mensal: number;
-  economia_anual: number;
-  valor_final: number;
-  desconto_percentual: number;
-  status: string;
-  created_at: string;
-}
+import { calcularComissao, formatarMoeda } from '@/utils/energyCalculations';
+import type { Lead } from '@/types/energy';
 
 const STATUS_OPTIONS = [
   { value: 'novo', label: 'Novo', color: 'bg-blue-500/10 text-blue-600 border-blue-200' },
@@ -38,41 +18,12 @@ const STATUS_OPTIONS = [
 ];
 
 export default function LeadsPage() {
-  const [leads, setLeads] = useState<Lead[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: leads = [], isLoading, refetch, isFetching } = useLeads();
+  const { updateStatus, convertLead } = useLeadMutations();
+  const { config } = useData();
+  const navigate = useNavigate();
   const [busca, setBusca] = useState('');
   const [filtroStatus, setFiltroStatus] = useState('todos');
-  const { adicionarCliente } = useData();
-  const navigate = useNavigate();
-
-  const fetchLeads = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('leads_simulacao')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (error) {
-      toast.error('Erro ao carregar leads');
-    } else {
-      setLeads(data as Lead[]);
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => { fetchLeads(); }, []);
-
-  const atualizarStatus = async (id: string, novoStatus: string) => {
-    const { error } = await supabase
-      .from('leads_simulacao')
-      .update({ status: novoStatus })
-      .eq('id', id);
-    if (error) {
-      toast.error('Erro ao atualizar status');
-    } else {
-      setLeads(prev => prev.map(l => l.id === id ? { ...l, status: novoStatus } : l));
-      toast.success('Status atualizado');
-    }
-  };
 
   const leadsAtivos = leads.filter(l => l.status !== 'convertido');
 
@@ -89,28 +40,36 @@ export default function LeadsPage() {
     return <Badge variant="outline" className={opt.color}>{opt.label}</Badge>;
   };
 
+  const handleAtualizarStatus = async (id: string, novoStatus: string) => {
+    try {
+      await updateStatus.mutateAsync({ id, status: novoStatus });
+      toast.success('Status atualizado');
+    } catch {
+      toast.error('Erro ao atualizar status');
+    }
+  };
+
+  const handleConverter = async (lead: Lead) => {
+    try {
+      await convertLead.mutateAsync({ lead, status: 'convertido' });
+      toast.success(`${lead.nome} adicionado como cliente!`);
+      navigate('/clientes');
+    } catch {
+      toast.error('Erro ao converter lead');
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Leads de Simulação"
-        description="Clientes que aceitaram a proposta pelo link público"
-      />
+      <PageHeader title="Leads de Simulação" description="Clientes que aceitaram a proposta pelo link público" />
 
-      {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar por nome, telefone ou CPF/CNPJ..."
-            value={busca}
-            onChange={e => setBusca(e.target.value)}
-            className="pl-9"
-          />
+          <Input placeholder="Buscar por nome, telefone ou CPF/CNPJ..." value={busca} onChange={e => setBusca(e.target.value)} className="pl-9" />
         </div>
         <Select value={filtroStatus} onValueChange={setFiltroStatus}>
-          <SelectTrigger className="w-40">
-            <SelectValue />
-          </SelectTrigger>
+          <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="todos">Todos</SelectItem>
             {STATUS_OPTIONS.map(s => (
@@ -118,12 +77,11 @@ export default function LeadsPage() {
             ))}
           </SelectContent>
         </Select>
-        <Button variant="outline" size="icon" onClick={fetchLeads}>
-          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+        <Button variant="outline" size="icon" onClick={() => refetch()}>
+          <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
         </Button>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
           { label: 'Total', value: leadsAtivos.length, icon: <Clock className="h-4 w-4" /> },
@@ -138,7 +96,6 @@ export default function LeadsPage() {
         ))}
       </div>
 
-      {/* Table */}
       <div className="rounded-xl border bg-card shadow-card overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
@@ -155,7 +112,7 @@ export default function LeadsPage() {
             </tr>
           </thead>
           <tbody>
-            {loading ? (
+            {isLoading ? (
               <tr><td colSpan={9} className="p-8 text-center text-muted-foreground">Carregando...</td></tr>
             ) : leadsFiltrados.length === 0 ? (
               <tr><td colSpan={9} className="p-8 text-center text-muted-foreground">Nenhum lead encontrado</td></tr>
@@ -184,10 +141,12 @@ export default function LeadsPage() {
                   </td>
                   <td className="p-3 text-right font-medium text-foreground">{formatarMoeda(lead.valor_fatura)}</td>
                   <td className="p-3 text-right font-medium text-primary">{formatarMoeda(lead.economia_mensal)}</td>
-                  <td className="p-3 text-right font-medium text-accent-foreground">{formatarMoeda(lead.economia_mensal * 0.03)}</td>
+                  <td className="p-3 text-right font-medium text-accent-foreground">
+                    {formatarMoeda(calcularComissao(lead.economia_mensal, config.taxaComissao))}
+                  </td>
                   <td className="p-3">
-                    <Select value={lead.status} onValueChange={(v) => atualizarStatus(lead.id, v)}>
-                      <SelectTrigger className="h-8 w-32 border-0 bg-transparent p-0">
+                    <Select value={lead.status} onValueChange={(v) => handleAtualizarStatus(lead.id, v)}>
+                      <SelectTrigger className="h-8 w-32">
                         {getStatusBadge(lead.status)}
                       </SelectTrigger>
                       <SelectContent>
@@ -204,63 +163,17 @@ export default function LeadsPage() {
                     <div className="flex items-center gap-1.5">
                       {lead.status !== 'perdido' && (
                         <>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-7 px-2 text-xs border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground"
-                            title="Converter em cliente"
-                            onClick={() => {
-                              adicionarCliente({
-                                nomeCompleto: lead.nome,
-                                telefone: lead.telefone,
-                                email: lead.email || '',
-                                cpfCnpj: lead.cpf_cnpj,
-                                tipoCliente: lead.tipo_cliente as TipoCliente,
-                                distribuidora: lead.distribuidora,
-                                cidade: lead.cidade || '',
-                                estado: lead.estado || '',
-                                endereco: '',
-                                unidadeConsumidora: '',
-                                consumoMedioMensal: 0,
-                                valorMedioConta: lead.valor_fatura,
-                                observacoes: `Lead convertido. Economia: ${formatarMoeda(lead.economia_mensal)}/mês`,
-                                status: 'ativo',
-                              });
-                              atualizarStatus(lead.id, 'convertido');
-                              toast.success(`${lead.nome} adicionado como cliente!`);
-                              navigate('/clientes');
-                            }}
-                          >
-                            <UserPlus className="h-3.5 w-3.5 mr-1" />
-                            Cliente
+                          <Button size="sm" variant="outline" className="h-7 px-2 text-xs border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground" onClick={() => handleConverter(lead)}>
+                            <UserPlus className="h-3.5 w-3.5 mr-1" />Cliente
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-7 px-2 text-xs border-destructive/30 text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                            title="Não aceitou — entrar em contato depois"
-                            onClick={() => {
-                              atualizarStatus(lead.id, 'perdido');
-                              toast('Marcado para novo contato futuro', { icon: '🔴' });
-                            }}
-                          >
-                            <PhoneOff className="h-3.5 w-3.5 mr-1" />
-                            Recusou
+                          <Button size="sm" variant="outline" className="h-7 px-2 text-xs border-destructive/30 text-destructive hover:bg-destructive hover:text-destructive-foreground" onClick={() => handleAtualizarStatus(lead.id, 'perdido')}>
+                            <PhoneOff className="h-3.5 w-3.5 mr-1" />Recusou
                           </Button>
                         </>
                       )}
                       {lead.status === 'perdido' && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="h-7 px-2 text-xs border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground"
-                          onClick={() => {
-                            atualizarStatus(lead.id, 'novo');
-                            toast.success('Lead reaberto para novo contato');
-                          }}
-                        >
-                          <RefreshCw className="h-3.5 w-3.5 mr-1" />
-                          Reabrir
+                        <Button size="sm" variant="outline" className="h-7 px-2 text-xs border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground" onClick={() => handleAtualizarStatus(lead.id, 'novo')}>
+                          <RefreshCw className="h-3.5 w-3.5 mr-1" />Reabrir
                         </Button>
                       )}
                     </div>

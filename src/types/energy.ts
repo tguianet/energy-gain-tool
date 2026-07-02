@@ -20,6 +20,7 @@ export interface Cliente {
   observacoes: string;
   status: StatusCliente;
   criadoEm: string;
+  leadId?: string;
 }
 
 export interface Simulacao {
@@ -86,4 +87,24 @@ export interface ResultadoSimulacao {
   economiaMensal: number;
   economiaAnual: number;
   percentualEconomia: number;
+}
+
+export interface Lead {
+  id: string;
+  nome: string;
+  telefone: string;
+  email: string | null;
+  cpf_cnpj: string;
+  tipo_cliente: string;
+  distribuidora: string;
+  cidade: string | null;
+  estado: string | null;
+  valor_fatura: number;
+  consumo_medio: number | null;
+  economia_mensal: number;
+  economia_anual: number;
+  valor_final: number;
+  desconto_percentual: number;
+  status: string;
+  created_at: string;
 }

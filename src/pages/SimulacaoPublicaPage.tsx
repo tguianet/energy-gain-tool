@@ -5,28 +5,21 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { calcularSimulacao, formatarMoeda, formatarPercentual } from '@/utils/energyCalculations';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
+import { createLeadPublic } from '@/services/energyService';
+import { useConfigPublica } from '@/contexts/DataContext';
+import { DISTRIBUIDORAS, ESTADOS_BR } from '@/constants/energy';
+import { simulacaoPublicaSchema } from '@/utils/validators';
 import type { TipoCliente } from '@/types/energy';
 
-const DISTRIBUIDORAS = [
-  'CEMIG', 'ENEL', 'CPFL', 'ENERGISA', 'EQUATORIAL', 'COPEL', 'CELESC',
-  'COELBA', 'CELPE', 'COSERN', 'LIGHT', 'ELEKTRO', 'Outra',
-];
-
-const ESTADOS = [
-  'AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT',
-  'PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO',
-];
-
-const TAXA_DESCONTO_PADRAO = 18;
-const TAXAS_FIXAS_PADRAO = 50;
-
 export default function SimulacaoPublicaPage() {
+  const { data: configPublica } = useConfigPublica();
+  const taxaDesconto = configPublica?.taxaDescontoPadrao ?? 15;
+  const taxasFixas = configPublica?.taxasFixasPadrao ?? 50;
+
   const [etapa, setEtapa] = useState<'formulario' | 'resultado'>('formulario');
   const [enviando, setEnviando] = useState(false);
   const [aceito, setAceito] = useState(false);
 
-  // Dados pessoais
   const [nome, setNome] = useState('');
   const [telefone, setTelefone] = useState('');
   const [email, setEmail] = useState('');
@@ -35,26 +28,20 @@ export default function SimulacaoPublicaPage() {
   const [distribuidora, setDistribuidora] = useState('');
   const [cidade, setCidade] = useState('');
   const [estado, setEstado] = useState('');
-
-  // Dados de consumo
   const [valorFatura, setValorFatura] = useState(0);
   const [consumoMedio, setConsumoMedio] = useState(0);
 
-  const TAXA_COMISSAO = 3; // 3% sobre o desconto
-
   const resultado = useMemo(
-    () => {
-      const sim = calcularSimulacao(valorFatura, TAXAS_FIXAS_PADRAO, TAXA_DESCONTO_PADRAO);
-      return { ...sim, comissao: sim.descontoReais * (TAXA_COMISSAO / 100) };
-    },
-    [valorFatura]
+    () => calcularSimulacao(valorFatura, taxasFixas, taxaDesconto),
+    [valorFatura, taxasFixas, taxaDesconto]
   );
 
-  const camposValidos = nome && telefone && cpfCnpj && distribuidora && valorFatura > 0;
-
   const handleSimular = () => {
-    if (!camposValidos) {
-      toast.error('Preencha todos os campos obrigatórios');
+    const parsed = simulacaoPublicaSchema.safeParse({
+      nome, telefone, email: email || undefined, cpfCnpj, distribuidora, valorFatura,
+    });
+    if (!parsed.success) {
+      toast.error(parsed.error.errors[0]?.message ?? 'Preencha os campos obrigatórios');
       return;
     }
     setEtapa('resultado');
@@ -63,23 +50,14 @@ export default function SimulacaoPublicaPage() {
   const handleAceitarProposta = async () => {
     setEnviando(true);
     try {
-      const { error } = await supabase.from('leads_simulacao').insert({
-        nome,
-        telefone,
-        email: email || null,
-        cpf_cnpj: cpfCnpj,
-        tipo_cliente: tipoCliente,
-        distribuidora,
-        cidade: cidade || null,
-        estado: estado || null,
-        valor_fatura: valorFatura,
-        consumo_medio: consumoMedio || null,
-        desconto_percentual: TAXA_DESCONTO_PADRAO,
-        economia_mensal: resultado.economiaMensal,
-        economia_anual: resultado.economiaAnual,
-        valor_final: resultado.valorFinal,
+      await createLeadPublic({
+        nome, telefone, email, cpfCnpj, tipoCliente, distribuidora,
+        cidade, estado, valorFatura, consumoMedio,
+        descontoPercentual: taxaDesconto,
+        economiaMensal: resultado.economiaMensal,
+        economiaAnual: resultado.economiaAnual,
+        valorFinal: resultado.valorFinal,
       });
-      if (error) throw error;
       setAceito(true);
       toast.success('Proposta aceita com sucesso! Entraremos em contato.');
     } catch {
@@ -96,7 +74,6 @@ export default function SimulacaoPublicaPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-3">
           <div className="rounded-xl bg-primary p-2">
@@ -112,13 +89,11 @@ export default function SimulacaoPublicaPage() {
       <main className="max-w-3xl mx-auto px-4 py-8">
         {etapa === 'formulario' ? (
           <div className="space-y-6 animate-fade-in">
-            {/* Hero */}
             <div className="rounded-2xl gradient-energy p-6 text-primary-foreground text-center">
-              <h2 className="text-2xl font-bold">Economize até {TAXA_DESCONTO_PADRAO}% na sua conta de luz</h2>
+              <h2 className="text-2xl font-bold">Economize até {taxaDesconto}% na sua conta de luz</h2>
               <p className="text-sm opacity-90 mt-2">Preencha seus dados e descubra quanto você pode economizar</p>
             </div>
 
-            {/* Form */}
             <div className="rounded-xl border bg-card p-6 shadow-card space-y-5">
               <h3 className="font-semibold text-foreground">Seus Dados</h3>
 
@@ -168,7 +143,7 @@ export default function SimulacaoPublicaPage() {
                   <Select value={estado} onValueChange={setEstado}>
                     <SelectTrigger><SelectValue placeholder="UF" /></SelectTrigger>
                     <SelectContent>
-                      {ESTADOS.map(uf => <SelectItem key={uf} value={uf}>{uf}</SelectItem>)}
+                      {ESTADOS_BR.map(uf => <SelectItem key={uf} value={uf}>{uf}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
@@ -179,26 +154,15 @@ export default function SimulacaoPublicaPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <label className="text-sm font-medium text-foreground">Valor da conta de luz (R$) *</label>
-                    <Input
-                      type="number"
-                      value={valorFatura || ''}
-                      onChange={e => setValorFatura(Number(e.target.value))}
-                      placeholder="Ex: 350"
-                    />
+                    <Input type="number" value={valorFatura || ''} onChange={e => setValorFatura(Number(e.target.value))} placeholder="Ex: 350" />
                   </div>
                   <div className="space-y-1">
                     <label className="text-sm font-medium text-foreground">Consumo médio (kWh)</label>
-                    <Input
-                      type="number"
-                      value={consumoMedio || ''}
-                      onChange={e => setConsumoMedio(Number(e.target.value))}
-                      placeholder="Ex: 400"
-                    />
+                    <Input type="number" value={consumoMedio || ''} onChange={e => setConsumoMedio(Number(e.target.value))} placeholder="Ex: 400" />
                   </div>
                 </div>
               </div>
 
-              {/* Preview da economia */}
               {valorFatura > 0 && (
                 <div className="rounded-lg bg-primary/5 border border-primary/20 p-4 text-center">
                   <p className="text-sm text-muted-foreground">Economia estimada</p>
@@ -206,11 +170,7 @@ export default function SimulacaoPublicaPage() {
                 </div>
               )}
 
-              <Button
-                onClick={handleSimular}
-                disabled={!camposValidos}
-                className="w-full gradient-energy border-0 text-primary-foreground h-12 text-base"
-              >
+              <Button onClick={handleSimular} className="w-full gradient-energy border-0 text-primary-foreground h-12 text-base">
                 <Zap className="h-5 w-5 mr-2" />
                 Ver minha economia
               </Button>
@@ -220,7 +180,6 @@ export default function SimulacaoPublicaPage() {
           <div className="space-y-6 animate-fade-in">
             {!aceito ? (
               <>
-                {/* Resultado */}
                 <div className="rounded-2xl gradient-energy p-6 text-primary-foreground text-center">
                   <p className="text-sm opacity-90">Sua economia mensal</p>
                   <p className="text-4xl font-bold mt-1">{formatarMoeda(resultado.economiaMensal)}</p>
@@ -235,12 +194,11 @@ export default function SimulacaoPublicaPage() {
                   <div className="grid grid-cols-2 gap-3">
                     {[
                       { icon: <DollarSign className="h-4 w-4" />, label: 'Valor atual', value: formatarMoeda(valorFatura) },
-                      { icon: <Percent className="h-4 w-4" />, label: 'Desconto', value: formatarPercentual(TAXA_DESCONTO_PADRAO) },
+                      { icon: <Percent className="h-4 w-4" />, label: 'Desconto', value: formatarPercentual(taxaDesconto) },
                       { icon: <TrendingDown className="h-4 w-4" />, label: 'Desconto em R$', value: formatarMoeda(resultado.descontoReais) },
                       { icon: <Zap className="h-4 w-4" />, label: 'Valor final', value: formatarMoeda(resultado.valorFinal) },
                       { icon: <TrendingUp className="h-4 w-4" />, label: 'Economia mensal', value: formatarMoeda(resultado.economiaMensal) },
                       { icon: <TrendingUp className="h-4 w-4" />, label: 'Economia anual', value: formatarMoeda(resultado.economiaAnual) },
-                      { icon: <DollarSign className="h-4 w-4" />, label: 'Comissão (3%)', value: formatarMoeda(resultado.comissao) },
                     ].map(card => (
                       <div key={card.label} className="rounded-lg border p-3">
                         <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
@@ -260,11 +218,7 @@ export default function SimulacaoPublicaPage() {
                 </div>
 
                 <div className="flex flex-col gap-3">
-                  <Button
-                    onClick={handleAceitarProposta}
-                    disabled={enviando}
-                    className="w-full gradient-energy border-0 text-primary-foreground h-12 text-base"
-                  >
+                  <Button onClick={handleAceitarProposta} disabled={enviando} className="w-full gradient-energy border-0 text-primary-foreground h-12 text-base">
                     {enviando ? (
                       <><Loader2 className="h-5 w-5 mr-2 animate-spin" />Enviando...</>
                     ) : (
@@ -277,7 +231,6 @@ export default function SimulacaoPublicaPage() {
                 </div>
               </>
             ) : (
-              /* Confirmação */
               <div className="rounded-2xl border bg-card p-8 shadow-card text-center space-y-4 animate-fade-in">
                 <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
                   <CheckCircle className="h-8 w-8 text-primary" />
@@ -296,7 +249,6 @@ export default function SimulacaoPublicaPage() {
         )}
       </main>
 
-      {/* Footer */}
       <footer className="border-t mt-12 py-6 text-center text-xs text-muted-foreground">
         Energia por Assinatura • Economia garantida na sua conta de luz
       </footer>
