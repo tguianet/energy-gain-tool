@@ -8,12 +8,6 @@ import {
   DEFAULT_NOME_EMPRESA, DEFAULT_TAXA_DESCONTO, DEFAULT_TAXAS_FIXAS, DEFAULT_TAXA_COMISSAO,
 } from '@/constants/energy';
 
-async function getUserId(): Promise<string> {
-  const { data: { user }, error } = await supabase.auth.getUser();
-  if (error || !user) throw new Error('Usuário não autenticado');
-  return user.id;
-}
-
 // --- Clientes ---
 
 export async function fetchClientes(): Promise<Cliente[]> {
@@ -23,9 +17,7 @@ export async function fetchClientes(): Promise<Cliente[]> {
 }
 
 export async function createCliente(input: Omit<Cliente, 'id' | 'criadoEm'>): Promise<Cliente> {
-  const userId = await getUserId();
   const { data, error } = await supabase.from('clientes').insert({
-    user_id: userId,
     nome_completo: input.nomeCompleto,
     telefone: input.telefone,
     email: input.email,
@@ -83,9 +75,7 @@ export async function fetchSimulacoes(): Promise<Simulacao[]> {
 export async function createSimulacao(
   input: Omit<Simulacao, 'id' | 'criadoEm'>
 ): Promise<Simulacao> {
-  const userId = await getUserId();
   const { data, error } = await supabase.from('simulacoes').insert({
-    user_id: userId,
     cliente_id: input.clienteId || null,
     nome_cliente: input.nomeCliente,
     distribuidora: input.distribuidora,
@@ -113,9 +103,7 @@ export async function fetchPropostas(): Promise<Proposta[]> {
 }
 
 export async function createProposta(input: Omit<Proposta, 'id' | 'criadoEm'>): Promise<Proposta> {
-  const userId = await getUserId();
   const { data, error } = await supabase.from('propostas').insert({
-    user_id: userId,
     simulacao_id: input.simulacaoId || null,
     cliente_id: input.clienteId || null,
     nome_cliente: input.nomeCliente,
@@ -151,9 +139,7 @@ export async function fetchContratos(): Promise<Contrato[]> {
 }
 
 export async function createContrato(input: Omit<Contrato, 'id' | 'criadoEm'>): Promise<Contrato> {
-  const userId = await getUserId();
   const { data, error } = await supabase.from('contratos').insert({
-    user_id: userId,
     cliente_id: input.clienteId || null,
     proposta_id: input.propostaId || null,
     nome_cliente: input.nomeCliente,
@@ -165,7 +151,7 @@ export async function createContrato(input: Omit<Contrato, 'id' | 'criadoEm'>): 
     valor_original: input.valorOriginal,
     valor_final: input.valorFinal,
     observacoes: input.observacoes,
-    historico: input.historico,
+    historico: input.historico as unknown as import('@/integrations/supabase/types').Json,
   }).select().single();
   if (error) throw error;
   return mapContrato(data);
@@ -239,23 +225,21 @@ const defaultConfig: AppConfig = {
 };
 
 export async function fetchConfig(): Promise<AppConfig> {
-  const userId = await getUserId();
-  const { data, error } = await supabase.from('configuracoes').select('*').eq('user_id', userId).maybeSingle();
+  const { data, error } = await supabase.from('configuracoes').select('*').eq('id', 1).maybeSingle();
   if (error) throw error;
   if (!data) return defaultConfig;
   return mapConfig(data);
 }
 
 export async function saveConfig(config: AppConfig): Promise<AppConfig> {
-  const userId = await getUserId();
   const { data, error } = await supabase.from('configuracoes').upsert({
-    user_id: userId,
+    id: 1,
     nome_empresa: config.nomeEmpresa,
     taxa_desconto_padrao: config.taxaDescontoPadrao,
     taxas_fixas_padrao: config.taxasFixasPadrao,
     taxa_comissao: config.taxaComissao,
     updated_at: new Date().toISOString(),
-  }, { onConflict: 'user_id' }).select().single();
+  }, { onConflict: 'id' }).select().single();
   if (error) throw error;
 
   await supabase.from('configuracoes_publicas').update({
