@@ -74,7 +74,7 @@ export function mapProposta(row: PropostaRow): Proposta {
 }
 
 export function mapContrato(row: ContratoRow): Contrato {
-  const historico = (row.historico as HistoricoContrato[] | null) ?? [];
+  const historico = (row.historico as unknown as HistoricoContrato[] | null) ?? [];
   return {
     id: row.id,
     clienteId: row.cliente_id ?? '',
