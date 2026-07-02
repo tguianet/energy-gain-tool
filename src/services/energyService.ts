@@ -190,8 +190,8 @@ export async function createLeadPublic(input: {
   nome: string;
   telefone: string;
   email?: string;
-  cpfCnpj: string;
-  tipoCliente: string;
+  cpfCnpj?: string;
+  tipoCliente?: string;
   distribuidora: string;
   cidade?: string;
   estado?: string;
@@ -206,8 +206,8 @@ export async function createLeadPublic(input: {
     nome: input.nome,
     telefone: input.telefone,
     email: input.email || null,
-    cpf_cnpj: input.cpfCnpj,
-    tipo_cliente: input.tipoCliente,
+    cpf_cnpj: input.cpfCnpj || '',
+    tipo_cliente: input.tipoCliente || 'residencial',
     distribuidora: input.distribuidora,
     cidade: input.cidade || null,
     estado: input.estado || null,
