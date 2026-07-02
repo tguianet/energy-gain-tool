@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const clienteFormSchema = z.object({
   nomeCompleto: z.string().min(2, 'Nome é obrigatório'),
   telefone: z.string().min(10, 'Telefone inválido'),
+  whatsapp: z.string().optional(),
   email: z.string().email('E-mail inválido').or(z.literal('')),
   cpfCnpj: z.string().min(11, 'CPF/CNPJ inválido'),
 });

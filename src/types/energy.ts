@@ -7,7 +7,10 @@ export interface Cliente {
   id: string;
   nomeCompleto: string;
   telefone: string;
+  whatsapp: string;
   email: string;
+  fotoContaEnergiaUrl: string;
+  fotoCnhUrl: string;
   cpfCnpj: string;
   tipoCliente: TipoCliente;
   distribuidora: string;

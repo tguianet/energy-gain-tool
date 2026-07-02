@@ -28,8 +28,11 @@ export async function createCliente(input: Omit<Cliente, 'id' | 'criadoEm'>): Pr
     user_id: userId,
     nome_completo: input.nomeCompleto,
     telefone: input.telefone,
+    whatsapp: input.whatsapp ?? '',
     email: input.email,
-    cpf_cnpj: input.cpfCnpj,
+    foto_conta_energia_url: input.fotoContaEnergiaUrl || null,
+    foto_cnh_url: input.fotoCnhUrl || null,
+    cpf_cnpj: input.cpfCnpj || '',
     tipo_cliente: input.tipoCliente,
     distribuidora: input.distribuidora,
     cidade: input.cidade,
@@ -50,7 +53,10 @@ export async function updateCliente(id: string, updates: Partial<Cliente>): Prom
   const payload: Record<string, unknown> = {};
   if (updates.nomeCompleto !== undefined) payload.nome_completo = updates.nomeCompleto;
   if (updates.telefone !== undefined) payload.telefone = updates.telefone;
+  if (updates.whatsapp !== undefined) payload.whatsapp = updates.whatsapp;
   if (updates.email !== undefined) payload.email = updates.email;
+  if (updates.fotoContaEnergiaUrl !== undefined) payload.foto_conta_energia_url = updates.fotoContaEnergiaUrl || null;
+  if (updates.fotoCnhUrl !== undefined) payload.foto_cnh_url = updates.fotoCnhUrl || null;
   if (updates.cpfCnpj !== undefined) payload.cpf_cnpj = updates.cpfCnpj;
   if (updates.tipoCliente !== undefined) payload.tipo_cliente = updates.tipoCliente;
   if (updates.distribuidora !== undefined) payload.distribuidora = updates.distribuidora;

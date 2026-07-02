@@ -167,7 +167,10 @@ export function useLeadMutations() {
       await api.createCliente({
         nomeCompleto: lead.nome,
         telefone: lead.telefone,
+        whatsapp: lead.telefone,
         email: lead.email || '',
+        fotoContaEnergiaUrl: '',
+        fotoCnhUrl: '',
         cpfCnpj: lead.cpf_cnpj,
         tipoCliente: lead.tipo_cliente as Cliente['tipoCliente'],
         distribuidora: lead.distribuidora,

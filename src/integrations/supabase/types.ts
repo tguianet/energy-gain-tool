@@ -19,7 +19,10 @@ export type Database = {
           id: string
           nome_completo: string
           telefone: string
+          whatsapp: string | null
           email: string | null
+          foto_conta_energia_url: string | null
+          foto_cnh_url: string | null
           cpf_cnpj: string
           tipo_cliente: string
           distribuidora: string | null
@@ -39,8 +42,11 @@ export type Database = {
           id?: string
           nome_completo: string
           telefone: string
+          whatsapp?: string | null
           email?: string | null
-          cpf_cnpj: string
+          foto_conta_energia_url?: string | null
+          foto_cnh_url?: string | null
+          cpf_cnpj?: string
           tipo_cliente?: string
           distribuidora?: string | null
           cidade?: string | null
@@ -59,7 +65,10 @@ export type Database = {
           id?: string
           nome_completo?: string
           telefone?: string
+          whatsapp?: string | null
           email?: string | null
+          foto_conta_energia_url?: string | null
+          foto_cnh_url?: string | null
           cpf_cnpj?: string
           tipo_cliente?: string
           distribuidora?: string | null

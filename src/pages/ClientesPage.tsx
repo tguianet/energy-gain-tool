@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Plus, Search, Edit, Trash2, Calculator } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Plus, Search, Edit, Trash2, Calculator, Upload, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,11 +13,63 @@ import type { Cliente, TipoCliente, StatusCliente } from '@/types/energy';
 import { toast } from 'sonner';
 
 const emptyCliente = {
-  nomeCompleto: '', telefone: '', email: '', cpfCnpj: '',
+  nomeCompleto: '', telefone: '', whatsapp: '', email: '', cpfCnpj: '',
   tipoCliente: 'residencial' as TipoCliente, distribuidora: '', cidade: '', estado: '',
   endereco: '', unidadeConsumidora: '', consumoMedioMensal: 0, valorMedioConta: 0,
+  fotoContaEnergiaUrl: '', fotoCnhUrl: '',
   observacoes: '', status: 'prospecto' as StatusCliente,
 };
+
+type ClienteFormState = typeof emptyCliente;
+
+interface FileUploadFieldProps {
+  id: string;
+  label: string;
+  fileName: string;
+  onFileSelect: (fileName: string) => void;
+}
+
+function FileUploadField({ id, label, fileName, onFileSelect }: FileUploadFieldProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <div className="space-y-2 sm:col-span-2">
+      <label className="text-sm font-medium" htmlFor={id}>{label}</label>
+      <div className="flex flex-col gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          className="justify-start gap-2 h-auto py-3"
+          onClick={() => inputRef.current?.click()}
+        >
+          <Upload className="h-4 w-4 shrink-0" />
+          <span className="truncate text-left">
+            {fileName || 'Selecionar arquivo (imagem ou PDF)'}
+          </span>
+        </Button>
+        <input
+          ref={inputRef}
+          id={id}
+          type="file"
+          accept="image/*,.pdf"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) onFileSelect(file.name);
+          }}
+        />
+        {fileName && (
+          <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800 px-3 py-2">
+            <AlertCircle className="h-4 w-4 text-amber-600 shrink-0" />
+            <p className="text-xs text-amber-800 dark:text-amber-200">
+              Arquivo selecionado: <strong>{fileName}</strong> (upload será ativado depois)
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default function ClientesPage() {
   const { clientes, adicionarCliente, atualizarCliente, removerCliente, loading } = useData();
@@ -27,7 +79,7 @@ export default function ClientesPage() {
   const [filtroCidade, setFiltroCidade] = useState<string>('todas');
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState(emptyCliente);
+  const [form, setForm] = useState<ClienteFormState>(emptyCliente);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [salvando, setSalvando] = useState(false);
 
@@ -35,19 +87,23 @@ export default function ClientesPage() {
 
   const filtered = clientes.filter(c => {
     const matchBusca = !busca || c.nomeCompleto.toLowerCase().includes(busca.toLowerCase())
-      || c.telefone.includes(busca) || c.cpfCnpj.includes(busca);
+      || c.telefone.includes(busca) || c.cpfCnpj.includes(busca)
+      || c.whatsapp.includes(busca);
     const matchStatus = filtroStatus === 'todos' || c.status === filtroStatus;
     const matchCidade = filtroCidade === 'todas' || c.cidade === filtroCidade;
     return matchBusca && matchStatus && matchCidade;
   });
 
   const openNew = () => { setForm(emptyCliente); setEditingId(null); setModalOpen(true); };
+
   const openEdit = (c: Cliente) => {
     setForm({
-      nomeCompleto: c.nomeCompleto, telefone: c.telefone, email: c.email, cpfCnpj: c.cpfCnpj,
+      nomeCompleto: c.nomeCompleto, telefone: c.telefone, whatsapp: c.whatsapp,
+      email: c.email, cpfCnpj: c.cpfCnpj,
       tipoCliente: c.tipoCliente, distribuidora: c.distribuidora, cidade: c.cidade, estado: c.estado,
       endereco: c.endereco, unidadeConsumidora: c.unidadeConsumidora,
       consumoMedioMensal: c.consumoMedioMensal, valorMedioConta: c.valorMedioConta,
+      fotoContaEnergiaUrl: c.fotoContaEnergiaUrl, fotoCnhUrl: c.fotoCnhUrl,
       observacoes: c.observacoes, status: c.status,
     });
     setEditingId(c.id);
@@ -78,7 +134,8 @@ export default function ClientesPage() {
     setDeleteConfirm(null);
   };
 
-  const updateField = (field: string, value: string | number) => setForm(prev => ({ ...prev, [field]: value }));
+  const updateField = (field: keyof ClienteFormState, value: string | number) =>
+    setForm(prev => ({ ...prev, [field]: value }));
 
   return (
     <div className="space-y-6">
@@ -191,6 +248,10 @@ export default function ClientesPage() {
               <Input type="email" value={form.email} onChange={e => updateField('email', e.target.value)} />
             </div>
             <div className="space-y-1">
+              <label className="text-sm font-medium">WhatsApp</label>
+              <Input value={form.whatsapp} onChange={e => updateField('whatsapp', e.target.value)} placeholder="(00) 00000-0000" />
+            </div>
+            <div className="space-y-1">
               <label className="text-sm font-medium">CPF/CNPJ *</label>
               <Input value={form.cpfCnpj} onChange={e => updateField('cpfCnpj', e.target.value)} />
             </div>
@@ -247,6 +308,18 @@ export default function ClientesPage() {
                 </SelectContent>
               </Select>
             </div>
+            <FileUploadField
+              id="foto-conta"
+              label="Foto da conta de energia"
+              fileName={form.fotoContaEnergiaUrl}
+              onFileSelect={(name) => updateField('fotoContaEnergiaUrl', name)}
+            />
+            <FileUploadField
+              id="foto-cnh"
+              label="Foto da CNH"
+              fileName={form.fotoCnhUrl}
+              onFileSelect={(name) => updateField('fotoCnhUrl', name)}
+            />
             <div className="sm:col-span-2 space-y-1">
               <label className="text-sm font-medium">Observações</label>
               <Input value={form.observacoes} onChange={e => updateField('observacoes', e.target.value)} />
