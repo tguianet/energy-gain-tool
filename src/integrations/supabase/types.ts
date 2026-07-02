@@ -14,174 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      clientes: {
-        Row: {
-          id: string
-          nome_completo: string
-          telefone: string
-          email: string | null
-          cpf_cnpj: string
-          tipo_cliente: string
-          distribuidora: string | null
-          cidade: string | null
-          estado: string | null
-          endereco: string | null
-          unidade_consumidora: string | null
-          consumo_medio_mensal: number | null
-          valor_medio_conta: number | null
-          observacoes: string | null
-          status: string
-          lead_id: string | null
-          user_id: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          nome_completo: string
-          telefone: string
-          email?: string | null
-          cpf_cnpj: string
-          tipo_cliente?: string
-          distribuidora?: string | null
-          cidade?: string | null
-          estado?: string | null
-          endereco?: string | null
-          unidade_consumidora?: string | null
-          consumo_medio_mensal?: number | null
-          valor_medio_conta?: number | null
-          observacoes?: string | null
-          status?: string
-          lead_id?: string | null
-          user_id: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          nome_completo?: string
-          telefone?: string
-          email?: string | null
-          cpf_cnpj?: string
-          tipo_cliente?: string
-          distribuidora?: string | null
-          cidade?: string | null
-          estado?: string | null
-          endereco?: string | null
-          unidade_consumidora?: string | null
-          consumo_medio_mensal?: number | null
-          valor_medio_conta?: number | null
-          observacoes?: string | null
-          status?: string
-          lead_id?: string | null
-          user_id?: string
-          created_at?: string
-        }
-        Relationships: []
-      }
-      configuracoes: {
-        Row: {
-          id: string
-          user_id: string
-          nome_empresa: string
-          taxa_desconto_padrao: number
-          taxas_fixas_padrao: number
-          taxa_comissao: number
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          nome_empresa?: string
-          taxa_desconto_padrao?: number
-          taxas_fixas_padrao?: number
-          taxa_comissao?: number
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          nome_empresa?: string
-          taxa_desconto_padrao?: number
-          taxas_fixas_padrao?: number
-          taxa_comissao?: number
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      configuracoes_publicas: {
-        Row: {
-          id: number
-          taxa_desconto_padrao: number
-          taxas_fixas_padrao: number
-          updated_at: string
-        }
-        Insert: {
-          id?: number
-          taxa_desconto_padrao?: number
-          taxas_fixas_padrao?: number
-          updated_at?: string
-        }
-        Update: {
-          id?: number
-          taxa_desconto_padrao?: number
-          taxas_fixas_padrao?: number
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      contratos: {
-        Row: {
-          id: string
-          cliente_id: string | null
-          proposta_id: string | null
-          nome_cliente: string
-          distribuidora: string | null
-          data_adesao: string
-          status: string
-          desconto_contratado: number
-          taxa_desconto: number
-          valor_original: number
-          valor_final: number
-          observacoes: string | null
-          historico: Json
-          user_id: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          cliente_id?: string | null
-          proposta_id?: string | null
-          nome_cliente: string
-          distribuidora?: string | null
-          data_adesao?: string
-          status?: string
-          desconto_contratado: number
-          taxa_desconto: number
-          valor_original: number
-          valor_final: number
-          observacoes?: string | null
-          historico?: Json
-          user_id: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          cliente_id?: string | null
-          proposta_id?: string | null
-          nome_cliente?: string
-          distribuidora?: string | null
-          data_adesao?: string
-          status?: string
-          desconto_contratado?: number
-          taxa_desconto?: number
-          valor_original?: number
-          valor_final?: number
-          observacoes?: string | null
-          historico?: Json
-          user_id?: string
-          created_at?: string
-        }
-        Relationships: []
-      }
       leads_simulacao: {
         Row: {
           cidade: string | null
@@ -242,114 +74,24 @@ export type Database = {
         }
         Relationships: []
       }
-      propostas: {
+      user_roles: {
         Row: {
-          id: string
-          simulacao_id: string | null
-          cliente_id: string | null
-          nome_cliente: string
-          distribuidora: string | null
-          valor_atual: number
-          desconto_aplicado: number
-          taxa_desconto: number
-          economia_mensal: number
-          economia_anual: number
-          valor_final: number
-          resumo_comercial: string | null
-          status: string
-          user_id: string
           created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
         }
         Insert: {
-          id?: string
-          simulacao_id?: string | null
-          cliente_id?: string | null
-          nome_cliente: string
-          distribuidora?: string | null
-          valor_atual: number
-          desconto_aplicado: number
-          taxa_desconto: number
-          economia_mensal: number
-          economia_anual: number
-          valor_final: number
-          resumo_comercial?: string | null
-          status?: string
-          user_id: string
           created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
         }
         Update: {
+          created_at?: string
           id?: string
-          simulacao_id?: string | null
-          cliente_id?: string | null
-          nome_cliente?: string
-          distribuidora?: string | null
-          valor_atual?: number
-          desconto_aplicado?: number
-          taxa_desconto?: number
-          economia_mensal?: number
-          economia_anual?: number
-          valor_final?: number
-          resumo_comercial?: string | null
-          status?: string
+          role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
-          created_at?: string
-        }
-        Relationships: []
-      }
-      simulacoes: {
-        Row: {
-          id: string
-          cliente_id: string | null
-          nome_cliente: string
-          distribuidora: string | null
-          valor_fatura: number
-          consumo_medio: number | null
-          taxa_desconto: number
-          taxas_fixas: number
-          base_desconto: number
-          desconto_reais: number
-          valor_final: number
-          economia_mensal: number
-          economia_anual: number
-          percentual_economia: number
-          user_id: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          cliente_id?: string | null
-          nome_cliente: string
-          distribuidora?: string | null
-          valor_fatura: number
-          consumo_medio?: number | null
-          taxa_desconto: number
-          taxas_fixas?: number
-          base_desconto: number
-          desconto_reais: number
-          valor_final: number
-          economia_mensal: number
-          economia_anual: number
-          percentual_economia: number
-          user_id: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          cliente_id?: string | null
-          nome_cliente?: string
-          distribuidora?: string | null
-          valor_fatura?: number
-          consumo_medio?: number | null
-          taxa_desconto?: number
-          taxas_fixas?: number
-          base_desconto?: number
-          desconto_reais?: number
-          valor_final?: number
-          economia_mensal?: number
-          economia_anual?: number
-          percentual_economia?: number
-          user_id?: string
-          created_at?: string
         }
         Relationships: []
       }
@@ -358,10 +100,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -488,6 +236,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const
