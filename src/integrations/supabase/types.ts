@@ -256,6 +256,59 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          cidade: string
+          cliente_id: string | null
+          cpf_cnpj: string
+          created_at: string
+          email: string
+          estado: string
+          id: string
+          nome_completo: string
+          telefone: string
+          tipo_cliente: string
+          updated_at: string
+          whatsapp: string
+        }
+        Insert: {
+          cidade?: string
+          cliente_id?: string | null
+          cpf_cnpj?: string
+          created_at?: string
+          email?: string
+          estado?: string
+          id: string
+          nome_completo: string
+          telefone?: string
+          tipo_cliente?: string
+          updated_at?: string
+          whatsapp?: string
+        }
+        Update: {
+          cidade?: string
+          cliente_id?: string | null
+          cpf_cnpj?: string
+          created_at?: string
+          email?: string
+          estado?: string
+          id?: string
+          nome_completo?: string
+          telefone?: string
+          tipo_cliente?: string
+          updated_at?: string
+          whatsapp?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       propostas: {
         Row: {
           cliente_id: string | null
@@ -337,6 +390,7 @@ export type Database = {
           percentual_economia: number
           taxa_desconto: number
           taxas_fixas: number
+          user_id: string | null
           valor_fatura: number
           valor_final: number
         }
@@ -354,6 +408,7 @@ export type Database = {
           percentual_economia: number
           taxa_desconto: number
           taxas_fixas?: number
+          user_id?: string | null
           valor_fatura: number
           valor_final: number
         }
@@ -371,6 +426,7 @@ export type Database = {
           percentual_economia?: number
           taxa_desconto?: number
           taxas_fixas?: number
+          user_id?: string | null
           valor_fatura?: number
           valor_final?: number
         }

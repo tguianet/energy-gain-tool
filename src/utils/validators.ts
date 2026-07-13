@@ -22,6 +22,19 @@ export const loginSchema = z.object({
   password: z.string().min(6, 'Senha deve ter ao menos 6 caracteres'),
 });
 
+export const clienteSignupSchema = z.object({
+  nomeCompleto: z.string().trim().min(2, 'Nome é obrigatório').max(120),
+  telefone: z.string().trim().min(10, 'Telefone inválido').max(20),
+  whatsapp: z.string().trim().min(10, 'WhatsApp inválido').max(20),
+  email: z.string().trim().email('E-mail inválido').max(160),
+  password: z.string().min(6, 'Senha deve ter ao menos 6 caracteres').max(72),
+  cidade: z.string().trim().min(2, 'Cidade é obrigatória').max(80),
+  estado: z.string().trim().length(2, 'Selecione o estado'),
+  cpfCnpj: z.string().trim().min(11, 'CPF/CNPJ inválido').max(20),
+  tipoCliente: z.enum(['residencial', 'empresarial']),
+});
+
 export type ClienteFormValues = z.infer<typeof clienteFormSchema>;
 export type SimulacaoPublicaValues = z.infer<typeof simulacaoPublicaSchema>;
 export type LoginFormValues = z.infer<typeof loginSchema>;
+export type ClienteSignupValues = z.infer<typeof clienteSignupSchema>;

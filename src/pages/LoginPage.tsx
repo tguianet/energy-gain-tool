@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Zap, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,7 +26,7 @@ export default function LoginPage() {
     try {
       await signIn(parsed.data.email, parsed.data.password);
       toast.success('Login realizado com sucesso!');
-      navigate('/dashboard');
+      navigate('/');
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Erro ao fazer login');
     } finally {
@@ -118,6 +118,9 @@ export default function LoginPage() {
               {loading ? 'Entrando...' : 'Entrar'}
             </Button>
           </form>
+          <p className="text-center text-sm text-muted-foreground">
+            Ainda não tem conta? <Link to="/cadastro" className="text-primary font-medium hover:underline">Cadastre-se</Link>
+          </p>
         </div>
       </div>
     </div>

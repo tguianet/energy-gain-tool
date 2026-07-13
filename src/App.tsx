@@ -4,9 +4,11 @@ import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { DataProvider } from '@/contexts/DataContext';
-import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { AdminRoute, ClienteRoute } from '@/components/RoleRoute';
 import AppLayout from '@/components/AppLayout';
+import ClienteLayout from '@/components/ClienteLayout';
 import LoginPage from '@/pages/LoginPage';
+import CadastroPage from '@/pages/CadastroPage';
 import DashboardPage from '@/pages/DashboardPage';
 import ClientesPage from '@/pages/ClientesPage';
 import SimuladorPage from '@/pages/SimuladorPage';
@@ -16,6 +18,9 @@ import RelatoriosPage from '@/pages/RelatoriosPage';
 import ConfiguracoesPage from '@/pages/ConfiguracoesPage';
 import SimulacaoPublicaPage from '@/pages/SimulacaoPublicaPage';
 import LeadsPage from '@/pages/LeadsPage';
+import ClienteInicioPage from '@/pages/cliente/ClienteInicioPage';
+import MinhaSimulacaoPage from '@/pages/cliente/MinhaSimulacaoPage';
+import MeuCadastroPage from '@/pages/cliente/MeuCadastroPage';
 import NotFound from '@/pages/NotFound';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -26,19 +31,41 @@ const queryClient = new QueryClient({
 });
 
 function AppRoutes() {
-  const { session, signOut } = useAuth();
+  const { session, role, signOut } = useAuth();
+  const loggedInHome = role === 'admin' ? '/dashboard' : '/app/inicio';
 
   return (
     <Routes>
       <Route path="/simular" element={<SimulacaoPublicaPage />} />
+      <Route path="/cadastro" element={session ? <Navigate to={loggedInHome} replace /> : <CadastroPage />} />
       <Route
         path="/login"
-        element={session ? <Navigate to="/dashboard" replace /> : <LoginPage />}
+        element={session ? <Navigate to={loggedInHome} replace /> : <LoginPage />}
       />
+
+      {/* Área do cliente */}
+      <Route
+        path="/app/*"
+        element={
+          <ClienteRoute>
+            <ClienteLayout onLogout={() => { void signOut(); }}>
+              <Routes>
+                <Route path="/" element={<Navigate to="/app/inicio" replace />} />
+                <Route path="/inicio" element={<ClienteInicioPage />} />
+                <Route path="/minha-simulacao" element={<MinhaSimulacaoPage />} />
+                <Route path="/meu-cadastro" element={<MeuCadastroPage />} />
+                <Route path="*" element={<Navigate to="/app/inicio" replace />} />
+              </Routes>
+            </ClienteLayout>
+          </ClienteRoute>
+        }
+      />
+
+      {/* Área administrativa */}
       <Route
         path="/*"
         element={
-          <ProtectedRoute>
+          <AdminRoute>
             <DataProvider>
               <AppLayout onLogout={() => { void signOut(); }}>
                 <Routes>
@@ -55,7 +82,7 @@ function AppRoutes() {
                 </Routes>
               </AppLayout>
             </DataProvider>
-          </ProtectedRoute>
+          </AdminRoute>
         }
       />
     </Routes>
