@@ -4,7 +4,6 @@ import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { DataProvider } from '@/contexts/DataContext';
-import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AdminRoute, ClienteRoute } from '@/components/RoleRoute';
 import AppLayout from '@/components/AppLayout';
 import ClienteLayout from '@/components/ClienteLayout';
