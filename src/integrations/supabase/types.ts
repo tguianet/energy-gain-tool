@@ -379,7 +379,9 @@ export type Database = {
         Row: {
           base_desconto: number
           cliente_id: string | null
+          codigo_solicitacao: string | null
           consumo_medio: number
+          conta_energia_url: string | null
           created_at: string
           desconto_reais: number
           distribuidora: string | null
@@ -388,6 +390,7 @@ export type Database = {
           id: string
           nome_cliente: string
           percentual_economia: number
+          status: string
           taxa_desconto: number
           taxas_fixas: number
           user_id: string | null
@@ -397,7 +400,9 @@ export type Database = {
         Insert: {
           base_desconto: number
           cliente_id?: string | null
+          codigo_solicitacao?: string | null
           consumo_medio?: number
+          conta_energia_url?: string | null
           created_at?: string
           desconto_reais: number
           distribuidora?: string | null
@@ -406,6 +411,7 @@ export type Database = {
           id?: string
           nome_cliente: string
           percentual_economia: number
+          status?: string
           taxa_desconto: number
           taxas_fixas?: number
           user_id?: string | null
@@ -415,7 +421,9 @@ export type Database = {
         Update: {
           base_desconto?: number
           cliente_id?: string | null
+          codigo_solicitacao?: string | null
           consumo_medio?: number
+          conta_energia_url?: string | null
           created_at?: string
           desconto_reais?: number
           distribuidora?: string | null
@@ -424,6 +432,7 @@ export type Database = {
           id?: string
           nome_cliente?: string
           percentual_economia?: number
+          status?: string
           taxa_desconto?: number
           taxas_fixas?: number
           user_id?: string | null
