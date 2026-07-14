@@ -103,6 +103,7 @@ export default function PropostasPage() {
           <thead>
             <tr className="border-b bg-muted/50">
               <th className="text-left px-4 py-3 font-medium">Cliente</th>
+              <th className="text-left px-4 py-3 font-medium hidden sm:table-cell">Data</th>
               <th className="text-left px-4 py-3 font-medium hidden md:table-cell">Valor Atual</th>
               <th className="text-left px-4 py-3 font-medium hidden md:table-cell">Desconto</th>
               <th className="text-left px-4 py-3 font-medium hidden lg:table-cell">Economia Mensal</th>
@@ -116,6 +117,9 @@ export default function PropostasPage() {
                 <td className="px-4 py-3">
                   <p className="font-medium">{p.nomeCliente}</p>
                   <p className="text-xs text-muted-foreground">{p.distribuidora}</p>
+                </td>
+                <td className="px-4 py-3 hidden sm:table-cell text-sm text-muted-foreground">
+                  {new Date(p.criadoEm).toLocaleDateString('pt-BR')}
                 </td>
                 <td className="px-4 py-3 hidden md:table-cell">{formatarMoeda(p.valorAtual)}</td>
                 <td className="px-4 py-3 hidden md:table-cell text-primary font-medium">{formatarPercentual(p.taxaDesconto)}</td>
@@ -143,7 +147,7 @@ export default function PropostasPage() {
               </tr>
             ))}
             {filtered.length === 0 && (
-              <tr><td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">Nenhuma proposta encontrada</td></tr>
+              <tr><td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">Nenhuma proposta encontrada</td></tr>
             )}
           </tbody>
         </table>
