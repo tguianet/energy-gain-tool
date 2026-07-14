@@ -60,6 +60,7 @@ export default function MinhaSimulacaoPage() {
     [valorFatura, taxasFixas, taxaDesconto]
   );
   const economia5Anos = resultado.economiaAnual * 5;
+  const jaTemSimulacao = minhasSims.length > 0;
 
   const carregar = async () => {
     if (!user) return;
@@ -233,6 +234,20 @@ export default function MinhaSimulacaoPage() {
       </div>
 
       {/* Formulário */}
+      {jaTemSimulacao ? (
+        <div className="rounded-xl border bg-primary/5 border-primary/30 p-6 shadow-card">
+          <div className="flex items-start gap-3">
+            <CheckCircle2 className="h-6 w-6 text-primary shrink-0 mt-0.5" />
+            <div>
+              <h3 className="font-semibold">Você já enviou sua simulação</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Cada cliente pode enviar apenas uma simulação. Nossa equipe já está analisando seu pedido —
+                acompanhe o status abaixo. Para dúvidas, fale com a gente pelo WhatsApp.
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : (
       <div className="rounded-xl border bg-card p-6 shadow-card space-y-5">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1">
@@ -284,9 +299,10 @@ export default function MinhaSimulacaoPage() {
           </div>
         </div>
       </div>
+      )}
 
       {/* Resultado */}
-      {valorFatura > 0 && (
+      {!jaTemSimulacao && valorFatura > 0 && (
         <div className="rounded-xl border bg-card p-6 shadow-card space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <h3 className="font-semibold flex items-center gap-2">
