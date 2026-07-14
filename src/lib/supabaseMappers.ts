@@ -32,7 +32,7 @@ export function mapCliente(row: ClienteRow): Cliente {
     valorMedioConta: Number(row.valor_medio_conta),
     observacoes: row.observacoes ?? '',
     status: row.status as StatusCliente,
-    criadoEm: row.created_at.split('T')[0],
+    criadoEm: row.created_at,
     leadId: row.lead_id ?? undefined,
   };
 }
@@ -53,7 +53,7 @@ export function mapSimulacao(row: SimulacaoRow): Simulacao {
     economiaMensal: Number(row.economia_mensal),
     economiaAnual: Number(row.economia_anual),
     percentualEconomia: Number(row.percentual_economia),
-    criadoEm: row.created_at.split('T')[0],
+    criadoEm: row.created_at,
   };
 }
 
@@ -72,7 +72,7 @@ export function mapProposta(row: PropostaRow): Proposta {
     valorFinal: Number(row.valor_final),
     resumoComercial: row.resumo_comercial ?? '',
     status: row.status as StatusProposta,
-    criadoEm: row.created_at.split('T')[0],
+    criadoEm: row.created_at,
   };
 }
 
@@ -92,7 +92,7 @@ export function mapContrato(row: ContratoRow): Contrato {
     valorFinal: Number(row.valor_final),
     observacoes: row.observacoes ?? '',
     historico,
-    criadoEm: row.created_at.split('T')[0],
+    criadoEm: row.created_at,
   };
 }
 
