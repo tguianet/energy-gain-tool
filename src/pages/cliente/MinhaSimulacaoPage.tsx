@@ -146,13 +146,8 @@ export default function MinhaSimulacaoPage() {
       }).select('codigo_solicitacao,economia_mensal').single();
       if (error) throw error;
 
-      // Try to fetch company whatsapp for the confirmation CTA
-      const { data: cfg } = await supabase
-        .from('configuracoes').select('nome_empresa').maybeSingle();
-      // best-effort: use admin phone if available via profiles of admin role — skip; use static empty
-      setEmpresaWhats('');
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const _ = cfg;
+      // Contato do representante para o botão de WhatsApp
+      setEmpresaWhats('17991431999');
 
       setConfirmacao({
         codigo: data?.codigo_solicitacao ?? '—',
