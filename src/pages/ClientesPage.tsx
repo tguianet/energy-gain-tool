@@ -89,7 +89,9 @@ export default function ClientesPage() {
     const matchBusca = !busca || c.nomeCompleto.toLowerCase().includes(busca.toLowerCase())
       || c.telefone.includes(busca) || c.cpfCnpj.includes(busca)
       || c.whatsapp.includes(busca);
-    const matchStatus = filtroStatus === 'todos' || c.status === filtroStatus;
+    // Apenas clientes "fixos": prospectos ainda estão na fase de proposta e não aparecem aqui.
+    const naoProspecto = c.status !== 'prospecto';
+    const matchStatus = filtroStatus === 'todos' ? naoProspecto : c.status === filtroStatus;
     const matchCidade = filtroCidade === 'todas' || c.cidade === filtroCidade;
     return matchBusca && matchStatus && matchCidade;
   });
