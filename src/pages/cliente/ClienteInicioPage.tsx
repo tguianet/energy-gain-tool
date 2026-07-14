@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Calculator, TrendingUp, User, Zap } from 'lucide-react';
+import { Calculator, MessageCircle, TrendingUp, User, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { linkWhatsApp } from '@/utils/phone';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatarMoeda } from '@/utils/energyCalculations';
