@@ -13,7 +13,7 @@ import type { Proposta } from '@/types/energy';
 import { toast } from 'sonner';
 
 export default function PropostasPage() {
-  const { propostas, clientes, atualizarProposta, adicionarContrato } = useData();
+  const { propostas, clientes, atualizarProposta, atualizarCliente, adicionarContrato } = useData();
   const navigate = useNavigate();
   const [busca, setBusca] = useState('');
   const [filtroStatus, setFiltroStatus] = useState('todos');
@@ -65,6 +65,9 @@ export default function PropostasPage() {
         observacoes: '', historico: [{ data: new Date().toISOString().split('T')[0], descricao: 'Contrato gerado a partir da proposta' }],
       });
       await atualizarProposta(p.id, { status: 'aceita' });
+      if (p.clienteId) {
+        try { await atualizarCliente(p.clienteId, { status: 'ativo' }); } catch (e) { console.error(e); }
+      }
       toast.success('Contrato gerado com sucesso!');
       navigate('/contratos');
     } catch {
