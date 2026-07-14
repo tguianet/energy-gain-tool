@@ -194,7 +194,7 @@ export default function MinhaSimulacaoPage() {
               className="flex-1 gradient-energy border-0 text-primary-foreground h-11"
             >
               <a href={linkWhatsApp(empresaWhats, mensagem)} target="_blank" rel="noreferrer">
-                <MessageCircle className="h-4 w-4 mr-2" /> Falar pelo WhatsApp
+                <MessageCircle className="h-4 w-4 mr-2" /> Falar com Tiago pelo WhatsApp
               </a>
             </Button>
             <Button variant="outline" className="flex-1 h-11" onClick={() => setConfirmacao(null)}>
