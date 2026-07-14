@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Plus, Search, Edit, Trash2, Calculator, Upload, AlertCircle } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Calculator, Upload, AlertCircle, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -176,13 +176,14 @@ export default function ClientesPage() {
               <th className="text-left px-4 py-3 font-medium hidden md:table-cell">Telefone</th>
               <th className="text-left px-4 py-3 font-medium hidden lg:table-cell">Cidade</th>
               <th className="text-left px-4 py-3 font-medium hidden lg:table-cell">Tipo</th>
+              <th className="text-left px-4 py-3 font-medium hidden md:table-cell">Data da proposta</th>
               <th className="text-left px-4 py-3 font-medium">Status</th>
               <th className="text-right px-4 py-3 font-medium">Ações</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">Carregando...</td></tr>
+              <tr><td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">Carregando...</td></tr>
             ) : filtered.map(c => (
               <tr key={c.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
                 <td className="px-4 py-3">
@@ -198,6 +199,9 @@ export default function ClientesPage() {
                     {c.tipoCliente}
                   </span>
                 </td>
+                <td className="px-4 py-3 hidden md:table-cell text-muted-foreground">
+                  {c.criadoEm ? new Date(c.criadoEm).toLocaleDateString('pt-BR') : '—'}
+                </td>
                 <td className="px-4 py-3">
                   <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
                     c.status === 'ativo' ? 'bg-primary/10 text-primary' :
@@ -209,6 +213,14 @@ export default function ClientesPage() {
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center justify-end gap-1">
+                    <Button
+                      size="sm"
+                      className="h-8 gradient-energy border-0 text-primary-foreground hidden sm:inline-flex"
+                      onClick={() => navigate(`/propostas?clienteId=${c.id}`)}
+                      title="Dar andamento no processo"
+                    >
+                      Andamento <ArrowRight className="h-4 w-4 ml-1" />
+                    </Button>
                     <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(`/simulador?clienteId=${c.id}`)}>
                       <Calculator className="h-4 w-4" />
                     </Button>
@@ -223,7 +235,7 @@ export default function ClientesPage() {
               </tr>
             ))}
             {!loading && filtered.length === 0 && (
-              <tr><td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">Nenhum cliente encontrado</td></tr>
+              <tr><td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">Nenhum cliente encontrado</td></tr>
             )}
           </tbody>
         </table>
