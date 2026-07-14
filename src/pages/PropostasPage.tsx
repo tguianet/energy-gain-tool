@@ -60,9 +60,9 @@ export default function PropostasPage() {
       await adicionarContrato({
         clienteId: p.clienteId, propostaId: p.id, nomeCliente: p.nomeCliente,
         distribuidora: p.distribuidora, dataAdesao: new Date().toISOString().split('T')[0],
-        status: 'pendente', descontoContratado: p.descontoAplicado, taxaDesconto: p.taxaDesconto,
+        status: 'ativo', descontoContratado: p.descontoAplicado, taxaDesconto: p.taxaDesconto,
         valorOriginal: p.valorAtual, valorFinal: p.valorFinal,
-        observacoes: '', historico: [{ data: new Date().toISOString().split('T')[0], descricao: 'Contrato gerado a partir da proposta' }],
+        observacoes: '', historico: [{ data: new Date().toISOString().split('T')[0], descricao: 'Contrato ativado a partir da proposta' }],
       });
       await atualizarProposta(p.id, { status: 'aceita' });
       if (p.clienteId) {
