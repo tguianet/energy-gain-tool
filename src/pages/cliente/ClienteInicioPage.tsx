@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Calculator, TrendingUp, User, Zap } from 'lucide-react';
+import { Calculator, MessageCircle, TrendingUp, User, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { linkWhatsApp } from '@/utils/phone';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatarMoeda } from '@/utils/energyCalculations';
@@ -76,6 +77,18 @@ export default function ClienteInicioPage() {
             </div>
           </Button>
         </Link>
+      </div>
+
+      <div className="rounded-xl border bg-card p-5 shadow-card flex flex-col sm:flex-row sm:items-center gap-4">
+        <div className="flex-1">
+          <p className="text-sm font-semibold">Dúvidas? Fale com nosso representante</p>
+          <p className="text-sm text-muted-foreground">Tiago Gonçalves · (17) 99143-1999</p>
+        </div>
+        <Button asChild variant="outline" className="shrink-0">
+          <a href={linkWhatsApp('17991431999', 'Olá, Tiago! Gostaria de tirar uma dúvida sobre a EnergiaSub.')} target="_blank" rel="noreferrer">
+            <MessageCircle className="h-4 w-4 mr-2 text-green-600" /> WhatsApp
+          </a>
+        </Button>
       </div>
     </div>
   );

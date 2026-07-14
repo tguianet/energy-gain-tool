@@ -146,13 +146,8 @@ export default function MinhaSimulacaoPage() {
       }).select('codigo_solicitacao,economia_mensal').single();
       if (error) throw error;
 
-      // Try to fetch company whatsapp for the confirmation CTA
-      const { data: cfg } = await supabase
-        .from('configuracoes').select('nome_empresa').maybeSingle();
-      // best-effort: use admin phone if available via profiles of admin role — skip; use static empty
-      setEmpresaWhats('');
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const _ = cfg;
+      // Contato do representante para o botão de WhatsApp
+      setEmpresaWhats('17991431999');
 
       setConfirmacao({
         codigo: data?.codigo_solicitacao ?? '—',
@@ -199,7 +194,7 @@ export default function MinhaSimulacaoPage() {
               className="flex-1 gradient-energy border-0 text-primary-foreground h-11"
             >
               <a href={linkWhatsApp(empresaWhats, mensagem)} target="_blank" rel="noreferrer">
-                <MessageCircle className="h-4 w-4 mr-2" /> Falar pelo WhatsApp
+                <MessageCircle className="h-4 w-4 mr-2" /> Falar com Tiago pelo WhatsApp
               </a>
             </Button>
             <Button variant="outline" className="flex-1 h-11" onClick={() => setConfirmacao(null)}>
@@ -235,16 +230,27 @@ export default function MinhaSimulacaoPage() {
 
       {/* Formulário */}
       {jaTemSimulacao ? (
-        <div className="rounded-xl border bg-primary/5 border-primary/30 p-6 shadow-card">
+        <div className="rounded-xl border bg-primary/5 border-primary/30 p-6 shadow-card space-y-4">
           <div className="flex items-start gap-3">
             <CheckCircle2 className="h-6 w-6 text-primary shrink-0 mt-0.5" />
             <div>
               <h3 className="font-semibold">Você já enviou sua simulação</h3>
               <p className="text-sm text-muted-foreground mt-1">
                 Cada cliente pode enviar apenas uma simulação. Nossa equipe já está analisando seu pedido —
-                acompanhe o status abaixo. Para dúvidas, fale com a gente pelo WhatsApp.
+                acompanhe o status abaixo.
               </p>
             </div>
+          </div>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 rounded-lg border bg-card p-4">
+            <div className="flex-1">
+              <p className="text-sm font-semibold">Dúvidas? Fale com nosso representante</p>
+              <p className="text-sm text-muted-foreground">Tiago Gonçalves · (17) 99143-1999</p>
+            </div>
+            <Button asChild variant="outline" className="shrink-0">
+              <a href={linkWhatsApp('17991431999', 'Olá, Tiago! Gostaria de tirar uma dúvida sobre a minha simulação na EnergiaSub.')} target="_blank" rel="noreferrer">
+                <MessageCircle className="h-4 w-4 mr-2 text-green-600" /> WhatsApp
+              </a>
+            </Button>
           </div>
         </div>
       ) : (
