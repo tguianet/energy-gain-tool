@@ -114,6 +114,7 @@ export function mapLead(row: LeadRow): Lead {
     valor_final: Number(row.valor_final),
     desconto_percentual: Number(row.desconto_percentual),
     status: row.status,
+    origem: row.origem,
     created_at: row.created_at,
   };
 }

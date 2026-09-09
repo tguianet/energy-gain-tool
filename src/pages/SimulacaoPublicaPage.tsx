@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Zap, TrendingDown, TrendingUp, DollarSign, CheckCircle, Loader2, Percent } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +15,8 @@ export default function SimulacaoPublicaPage() {
   const { data: configPublica } = useConfigPublica();
   const taxaDesconto = configPublica?.taxaDescontoPadrao ?? 15;
   const taxasFixas = configPublica?.taxasFixasPadrao ?? 50;
+  const [searchParams] = useSearchParams();
+  const origem = searchParams.get('origem') || 'site';
 
   const [enviando, setEnviando] = useState(false);
   const [enviado, setEnviado] = useState(false);
@@ -57,6 +60,7 @@ export default function SimulacaoPublicaPage() {
         economiaMensal: resultado.economiaMensal,
         economiaAnual: resultado.economiaAnual,
         valorFinal: resultado.valorFinal,
+        origem,
       });
       setEnviado(true);
       toast.success('Solicitação enviada! Entraremos em contato em breve.');

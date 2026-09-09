@@ -24,15 +24,19 @@ export default function LeadsPage() {
   const navigate = useNavigate();
   const [busca, setBusca] = useState('');
   const [filtroStatus, setFiltroStatus] = useState('todos');
+  const [filtroOrigem, setFiltroOrigem] = useState('todos');
 
   const leadsAtivos = leads.filter(l => l.status !== 'convertido');
+
+  const origens = Array.from(new Set(leadsAtivos.map(l => l.origem))).sort();
 
   const leadsFiltrados = leadsAtivos.filter(l => {
     const matchBusca = l.nome.toLowerCase().includes(busca.toLowerCase()) ||
       l.telefone.includes(busca) ||
       l.cpf_cnpj.includes(busca);
     const matchStatus = filtroStatus === 'todos' || l.status === filtroStatus;
-    return matchBusca && matchStatus;
+    const matchOrigem = filtroOrigem === 'todos' || l.origem === filtroOrigem;
+    return matchBusca && matchStatus && matchOrigem;
   });
 
   const getStatusBadge = (status: string) => {
@@ -77,6 +81,15 @@ export default function LeadsPage() {
             ))}
           </SelectContent>
         </Select>
+        <Select value={filtroOrigem} onValueChange={setFiltroOrigem}>
+          <SelectTrigger className="w-40"><SelectValue placeholder="Origem" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todas as origens</SelectItem>
+            {origens.map(o => (
+              <SelectItem key={o} value={o}>{o}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Button variant="outline" size="icon" onClick={() => refetch()}>
           <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
         </Button>
@@ -103,6 +116,7 @@ export default function LeadsPage() {
               <th className="text-left p-3 font-medium text-muted-foreground">Cliente</th>
               <th className="text-left p-3 font-medium text-muted-foreground">Contato</th>
               <th className="text-left p-3 font-medium text-muted-foreground">Distribuidora</th>
+              <th className="text-left p-3 font-medium text-muted-foreground">Origem</th>
               <th className="text-right p-3 font-medium text-muted-foreground">Fatura</th>
               <th className="text-right p-3 font-medium text-muted-foreground">Economia/mês</th>
               <th className="text-right p-3 font-medium text-muted-foreground">Comissão</th>
@@ -113,9 +127,9 @@ export default function LeadsPage() {
           </thead>
           <tbody>
             {isLoading ? (
-              <tr><td colSpan={9} className="p-8 text-center text-muted-foreground">Carregando...</td></tr>
+              <tr><td colSpan={10} className="p-8 text-center text-muted-foreground">Carregando...</td></tr>
             ) : leadsFiltrados.length === 0 ? (
-              <tr><td colSpan={9} className="p-8 text-center text-muted-foreground">Nenhum lead encontrado</td></tr>
+              <tr><td colSpan={10} className="p-8 text-center text-muted-foreground">Nenhum lead encontrado</td></tr>
             ) : (
               leadsFiltrados.map(lead => (
                 <tr key={lead.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
@@ -138,6 +152,9 @@ export default function LeadsPage() {
                     {(lead.cidade || lead.estado) && (
                       <p className="text-xs text-muted-foreground">{lead.cidade}{lead.cidade && lead.estado ? '/' : ''}{lead.estado}</p>
                     )}
+                  </td>
+                  <td className="p-3">
+                    <Badge variant="outline" className="capitalize">{lead.origem}</Badge>
                   </td>
                   <td className="p-3 text-right font-medium text-foreground">{formatarMoeda(lead.valor_fatura)}</td>
                   <td className="p-3 text-right font-medium text-primary">{formatarMoeda(lead.economia_mensal)}</td>
