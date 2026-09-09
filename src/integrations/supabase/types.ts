@@ -210,6 +210,7 @@ export type Database = {
           estado: string | null
           id: string
           nome: string
+          origem: string
           status: string
           telefone: string
           tipo_cliente: string
@@ -229,6 +230,7 @@ export type Database = {
           estado?: string | null
           id?: string
           nome: string
+          origem?: string
           status?: string
           telefone: string
           tipo_cliente?: string
@@ -248,6 +250,7 @@ export type Database = {
           estado?: string | null
           id?: string
           nome?: string
+          origem?: string
           status?: string
           telefone?: string
           tipo_cliente?: string

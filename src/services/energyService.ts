@@ -201,6 +201,7 @@ export async function createLeadPublic(input: {
   economiaMensal: number;
   economiaAnual: number;
   valorFinal: number;
+  origem?: string;
 }): Promise<void> {
   const { error } = await supabase.from('leads_simulacao').insert({
     nome: input.nome,
@@ -217,6 +218,7 @@ export async function createLeadPublic(input: {
     economia_mensal: input.economiaMensal,
     economia_anual: input.economiaAnual,
     valor_final: input.valorFinal,
+    origem: input.origem || 'site',
   });
   if (error) throw error;
 }

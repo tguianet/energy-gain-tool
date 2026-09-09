@@ -109,5 +109,6 @@ export interface Lead {
   valor_final: number;
   desconto_percentual: number;
   status: string;
+  origem: string;
   created_at: string;
 }
